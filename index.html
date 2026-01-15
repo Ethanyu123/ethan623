@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>微积分：导数、斜率、切线（交互式）</title>
+
+  <!-- MathJax: 渲染 LaTeX 公式 -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- math.js: 表达式计算 + 符号求导（能求导的就符号求导，不能的会回退数值导数） -->
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjs@11.11.2/lib/browser/math.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a2f; --card:#111c33;
+      --text:#e8eef7; --muted:#a3b3cc; --accent:#4fd1c5;
+      --line:#233455; --warn:#ffcc66;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",Arial;
+      background:linear-gradient(180deg,#071024 0%, #07162a 60%, #06101f 100%);
+      color:var(--text);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:18px;}
+    header{
+      display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:12px; margin-bottom:14px;
+    }
+    header h1{margin:0; font-size:20px; letter-spacing:.3px;}
+    header .sub{color:var(--muted); font-size:13px; line-height:1.35}
+    .grid{
+      display:grid; gap:14px;
+      grid-template-columns: 360px 1fr;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
+    .panel{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .panel .hd{
+      padding:12px 14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-weight:600;
+    }
+    .panel .bd{padding:12px 14px}
+    .row{display:flex; gap:10px; align-items:center; margin:10px 0}
+    label{font-size:13px; color:var(--muted); min-width:88px}
+    input[type="text"], input[type="number"]{
+      width:100%; padding:9px 10px; border-radius:10px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18); color:var(--text);
+      outline:none;
+    }
+    input[type="range"]{width:100%}
+    .hint{color:var(--muted); font-size:12px; line-height:1.45; margin-top:6px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background:rgba(79,209,197,.10); border:1px solid rgba(79,209,197,.25);
+      color:var(--text); font-size:12px;
+    }
+    .kvs{
+      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
+      margin-top:10px;
+    }
+    .kv{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px;
+    }
+    .kv .k{color:var(--muted); font-size:12px}
+    .kv .v{margin-top:4px; font-weight:700; font-size:14px; word-break:break-word}
+    .canvasWrap{
+      display:grid; gap:12px;
+      grid-template-rows:auto auto;
+    }
+    canvas{
+      width:100%; height:340px; display:block;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+    }
+    .twoCol{
+      display:grid; gap:12px;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 980px){
+      .twoCol{grid-template-columns:1fr}
+    }
+    details{
+      margin-top:10px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    summary{cursor:pointer; font-weight:600}
+    .mathBlock{margin:8px 0; color:var(--text)}
+    .warn{
+      margin-top:10px; padding:10px 12px; border-radius:12px;
+      border:1px solid rgba(255,204,102,.25);
+      background:rgba(255,204,102,.08);
+      color:var(--warn); font-size:12px; line-height:1.45;
+    }
+    .foot{color:var(--muted); font-size:12px; margin-top:10px}
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>微积分（Calculus）：导数、斜率、切线 —— 交互式推导与图表</h1>
+      <div class="sub">输入函数与参数，拖动 \(x_0\) 与 \(h\)，观察割线斜率如何趋近切线斜率（导数）。</div>
+    </div>
+    <div class="pill">支持符号求导（math.js）+ 自动回退数值导数</div>
+  </header>
+
+  <div class="grid">
+    <!-- 左侧：控制与输入 -->
+    <section class="panel">
+      <div class="hd">输入区（Function / Parameters / Point）</div>
+      <div class="bd">
+        <div class="row" style="align-items:flex-start">
+          <label>函数 \(f(x)\)</label>
+          <div style="flex:1">
+            <input id="expr" type="text" value="a*x^2 + b*x + c" />
+            <div class="hint">
+              可用变量：<b>x</b> 以及 <b>a,b,c,k,r</b>。<br/>
+              示例：<code>sin(k*x)</code>、<code>exp(r*x)</code>、<code>ln(x)</code>、<code>a*x^3</code>、<code>1/(1+x^2)</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="twoCol">
+          <div>
+            <div class="row"><label>a</label><input id="a" type="number" step="0.1" value="1"/></div>
+            <div class="row"><label>b</label><input id="b" type="number" step="0.1" value="0"/></div>
+            <div class="row"><label>c</label><input id="c" type="number" step="0.1" value="0"/></div>
+          </div>
+          <div>
+            <div class="row"><label>k</label><input id="k" type="number" step="0.1" value="1"/></div>
+            <div class="row"><label>r</label><input id="r" type="number" step="0.1" value="1"/></div>
+            <div class="row"><label>采样点</label><input id="samples" type="number" min="200" max="4000" step="100" value="900"/></div>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,.08); margin:12px 0">
+
+        <div class="row">
+          <label>点 \(x_0\)</label>
+          <input id="x0" type="range" min="-5" max="5" step="0.01" value="1"/>
+        </div>
+        <div class="row">
+          <label>\(h\)</label>
+          <input id="h" type="range" min="-2" max="2" step="0.001" value="0.8"/>
+        </div>
+
+        <div class="twoCol">
+          <div class="row"><label>\(x_{min}\)</label><input id="xmin" type="number" step="0.5" value="-5"/></div>
+          <div class="row"><label>\(x_{max}\)</label><input id="xmax" type="number" step="0.5" value="5"/></div>
+        </div>
+
+        <div class="warn" id="status" style="display:none"></div>
+
+        <div class="foot">
+          提示：如果你的函数有定义域限制（如 \(\\ln(x)\) 或 \(1/x\)），请调整 \(x_{min},x_{max}\)、或把 \(x_0\) 放到合法范围内。
+        </div>
+      </div>
+    </section>
+
+    <!-- 右侧：图表 + 公式解释 -->
+    <section class="panel">
+      <div class="hd">图表与公式（Charts & Math）</div>
+      <div class="bd">
+        <div class="canvasWrap">
+          <canvas id="plot1" width="980" height="340"></canvas>
+          <canvas id="plot2" width="980" height="340"></canvas>
+        </div>
+
+        <div class="kvs">
+          <div class="kv">
+            <div class="k">当前点</div>
+            <div class="v" id="kv_point">—</div>
+          </div>
+          <div class="kv">
+            <div class="k">割线斜率（差商）</div>
+            <div class="v" id="kv_secant">—</div>
+          </div>
+          <div class="kv">
+            <div class="k">导数（切线斜率）</div>
+            <div class="v" id="kv_deriv">—</div>
+          </div>
+          <div class="kv">
+            <div class="k">切线方程</div>
+            <div class="v" id="kv_tangent">—</div>
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,.08); margin:12px 0">
+
+        <div id="mathArea">
+          <div class="mathBlock" id="m_def"></div>
+          <div class="mathBlock" id="m_now"></div>
+          <div class="mathBlock" id="m_sym"></div>
+        </div>
+
+        <details open>
+          <summary>概念解释：斜率、割线、切线、导数（必读）</summary>
+          <div class="hint" style="margin-top:8px">
+            <div class="mathBlock">
+              1) <b>斜率（Slope）</b>：直线“上升/水平移动”的比值。两点 \((x_1,y_1),(x_2,y_2)\) 的连线斜率为：
+              \[
+                m=\frac{y_2-y_1}{x_2-x_1}
+              \]
+            </div>
+
+            <div class="mathBlock">
+              2) <b>割线（Secant）</b>：取曲线 \(y=f(x)\) 上两点 \((x_0,f(x_0))\) 与 \((x_0+h,f(x_0+h))\)，割线斜率为：
+              \[
+                \frac{f(x_0+h)-f(x_0)}{h}
+              \]
+              这就是<b>差商</b>（difference quotient），它描述“在有限步长 \(h\) 下的平均变化率”。
+            </div>
+
+            <div class="mathBlock">
+              3) <b>切线（Tangent）</b>：当你让第二个点无限靠近第一个点（即 \(h\to 0\)），割线会“极限地”变成切线。
+              这个极限就是导数：
+              \[
+                f'(x_0)=\lim_{h\to 0}\frac{f(x_0+h)-f(x_0)}{h}
+              \]
+              因此导数的几何意义：<b>切线的斜率</b>；物理意义：<b>瞬时变化率</b>。
+            </div>
+
+            <div class="mathBlock">
+              4) <b>切线方程</b>（点斜式）：若切线在 \(x_0\) 的斜率为 \(f'(x_0)\)，且过点 \((x_0,f(x_0))\)，则：
+              \[
+                y = f(x_0) + f'(x_0)\,(x-x_0)
+              \]
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>推导示例：从定义推导 \(f(x)=x^2\) 的导数</summary>
+          <div class="hint" style="margin-top:8px">
+            对 \(f(x)=x^2\)，在 \(x_0\) 处：
+            \[
+              f'(x_0)=\lim_{h\to 0}\frac{(x_0+h)^2-x_0^2}{h}
+            \]
+            展开：
+            \[
+              (x_0+h)^2-x_0^2 = x_0^2+2x_0h+h^2-x_0^2=2x_0h+h^2
+            \]
+            因此差商：
+            \[
+              \frac{2x_0h+h^2}{h}=2x_0+h
+            \]
+            令 \(h\to 0\) 得：
+            \[
+              f'(x_0)=2x_0
+            \]
+            所以 \(\\frac{d}{dx}(x^2)=2x\)。
+          </div>
+        </details>
+
+        <details>
+          <summary>常用求导规则速览（用于理解“为什么能快速算”）</summary>
+          <div class="hint" style="margin-top:8px">
+            <div class="mathBlock">
+              <b>线性性</b>：
+              \[
+                (af+bg)' = af' + bg'
+              \]
+            </div>
+            <div class="mathBlock">
+              <b>幂函数</b>：
+              \[
+                \frac{d}{dx}(x^n)=n x^{n-1}
+              \]
+            </div>
+            <div class="mathBlock">
+              <b>乘积法则</b>：
+              \[
+                (fg)'=f'g+fg'
+              \]
+            </div>
+            <div class="mathBlock">
+              <b>链式法则</b>（复合函数）：
+              \[
+                \frac{d}{dx}f(g(x))=f'(g(x))\cdot g'(x)
+              \]
+            </div>
+            <div class="mathBlock">
+              <b>常见函数</b>：
+              \[
+                (\sin x)'=\cos x,\quad (\cos x)'=-\sin x,\quad (e^x)'=e^x,\quad (\ln x)'=\frac1x
+              \]
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  // --- DOM ---
+  const $ = (id)=>document.getElementById(id);
+  const el = {
+    expr: $('expr'),
+    a: $('a'), b: $('b'), c: $('c'), k: $('k'), r: $('r'),
+    x0: $('x0'), h: $('h'),
+    xmin: $('xmin'), xmax: $('xmax'),
+    samples: $('samples'),
+    status: $('status'),
+    kv_point: $('kv_point'),
+    kv_secant: $('kv_secant'),
+    kv_deriv: $('kv_deriv'),
+    kv_tangent: $('kv_tangent'),
+    m_def: $('m_def'),
+    m_now: $('m_now'),
+    m_sym: $('m_sym'),
+    plot1: $('plot1'),
+    plot2: $('plot2'),
+  };
+
+  // --- Helpers ---
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+  function fmt(x, d=6){
+    if (!isFinite(x)) return 'NaN';
+    const ax = Math.abs(x);
+    if (ax !== 0 && (ax < 1e-4 || ax > 1e6)) return x.toExponential(4);
+    return Number(x).toFixed(d).replace(/\.?0+$/,'');
+  }
+  function showStatus(msg){
+    el.status.style.display = msg ? 'block' : 'none';
+    el.status.innerText = msg || '';
+  }
+
+  // --- Plotting (Canvas) ---
+  function makePlot(canvas){
+    const ctx = canvas.getContext('2d');
+    function clear(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    function worldToScreen(x, y, view){
+      const {xmin,xmax,ymin,ymax,pad} = view;
+      const W = canvas.width, H = canvas.height;
+      const sx = pad + (x - xmin) * (W - 2*pad) / (xmax - xmin);
+      const sy = H - pad - (y - ymin) * (H - 2*pad) / (ymax - ymin);
+      return [sx, sy];
+    }
+    function drawAxes(view){
+      const {xmin,xmax,ymin,ymax,pad} = view;
+      ctx.save();
+      ctx.globalAlpha = 0.95;
+
+      // grid
+      ctx.strokeStyle = 'rgba(255,255,255,.08)';
+      ctx.lineWidth = 1;
+
+      const gridN = 10;
+      for(let i=0;i<=gridN;i++){
+        const t = i/gridN;
+        const x = xmin + t*(xmax-xmin);
+        const y = ymin + t*(ymax-ymin);
+        // vertical
+        let [sx1, sy1] = worldToScreen(x, ymin, view);
+        let [sx2, sy2] = worldToScreen(x, ymax, view);
+        ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
+        // horizontal
+        [sx1, sy1] = worldToScreen(xmin, y, view);
+        [sx2, sy2] = worldToScreen(xmax, y, view);
+        ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
+      }
+
+      // axes lines
+      ctx.strokeStyle = 'rgba(255,255,255,.35)';
+      ctx.lineWidth = 1.2;
+
+      // x-axis (y=0) if within view
+      if (ymin <= 0 && ymax >= 0){
+        const [sx1, sy1] = worldToScreen(xmin, 0, view);
+        const [sx2, sy2] = worldToScreen(xmax, 0, view);
+        ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
+      }
+      // y-axis (x=0) if within view
+      if (xmin <= 0 && xmax >= 0){
+        const [sx1, sy1] = worldToScreen(0, ymin, view);
+        const [sx2, sy2] = worldToScreen(0, ymax, view);
+        ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
+      }
+
+      // labels
+      ctx.fillStyle = 'rgba(255,255,255,.75)';
+      ctx.font = '12px system-ui, -apple-system, Segoe UI, Arial';
+      ctx.fillText(`x ∈ [${fmt(xmin,2)}, ${fmt(xmax,2)}]`, 12, 18);
+      ctx.fillText(`y ∈ [${fmt(ymin,2)}, ${fmt(ymax,2)}]`, 12, 36);
+
+      ctx.restore();
+    }
+
+    function drawPolyline(points, view, style){
+      if (points.length < 2) return;
+      ctx.save();
+      ctx.strokeStyle = style.stroke || 'rgba(79,209,197,.95)';
+      ctx.lineWidth = style.width || 2.2;
+      ctx.globalAlpha = style.alpha ?? 1;
+      ctx.beginPath();
+      let started = false;
+      for(const p of points){
+        if (!isFinite(p.x) || !isFinite(p.y)) { started=false; continue; }
+        const [sx, sy] = worldToScreen(p.x, p.y, view);
+        if (!started){ ctx.moveTo(sx, sy); started = true; }
+        else ctx.lineTo(sx, sy);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawPoint(x,y,view,style){
+      const [sx, sy] = worldToScreen(x,y,view);
+      ctx.save();
+      ctx.fillStyle = style.fill || 'rgba(255,255,255,.9)';
+      ctx.strokeStyle = style.stroke || 'rgba(0,0,0,.4)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(sx, sy, style.r || 5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawLineByTwoPoints(x1,y1,x2,y2,view,style){
+      ctx.save();
+      ctx.strokeStyle = style.stroke || 'rgba(255,90,90,.9)';
+      ctx.lineWidth = style.width || 2;
+      ctx.setLineDash(style.dash || []);
+      ctx.globalAlpha = style.alpha ?? 1;
+      const [sx1, sy1] = worldToScreen(x1,y1,view);
+      const [sx2, sy2] = worldToScreen(x2,y2,view);
+      ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawLegend(items){
+      ctx.save();
+      ctx.font = '12px system-ui,-apple-system,Segoe UI,Arial';
+      let x = 14, y = canvas.height - 14;
+      for(const it of items){
+        ctx.fillStyle = 'rgba(0,0,0,.35)';
+        ctx.fillRect(x-6, y-18, ctx.measureText(it.text).width + 46, 22);
+        ctx.fillStyle = it.color;
+        ctx.fillRect(x, y-12, 18, 4);
+        ctx.fillStyle = 'rgba(255,255,255,.85)';
+        ctx.fillText(it.text, x+26, y-6);
+        x += ctx.measureText(it.text).width + 62;
+      }
+      ctx.restore();
+    }
+
+    return { ctx, clear, drawAxes, drawPolyline, drawPoint, drawLineByTwoPoints, drawLegend };
+  }
+
+  const P1 = makePlot(el.plot1);
+  const P2 = makePlot(el.plot2);
+
+  // --- Math core ---
+  function getScope(x){
+    return {
+      x,
+      a: Number(el.a.value),
+      b: Number(el.b.value),
+      c: Number(el.c.value),
+      k: Number(el.k.value),
+      r: Number(el.r.value),
+    };
+  }
+
+  function compileAll(){
+    const expr = String(el.expr.value || '').trim();
+    if (!expr) throw new Error('函数表达式为空。');
+
+    // math.js compile
+    const node = math.parse(expr);
+    const codeF = node.compile();
+
+    // try symbolic derivative
+    let dExpr = null, codeD = null;
+    try{
+      dExpr = math.derivative(node, 'x').toString();
+      codeD = math.parse(dExpr).compile();
+    }catch(e){
+      dExpr = null; codeD = null;
+    }
+
+    return { expr, codeF, dExpr, codeD };
+  }
+
+  function fEval(codeF, x){
+    return codeF.evaluate(getScope(x));
+  }
+
+  // numerical derivative fallback: central difference
+  function dNumerical(codeF, x){
+    const eps = 1e-6 * (1 + Math.abs(x));
+    const y1 = fEval(codeF, x + eps);
+    const y2 = fEval(codeF, x - eps);
+    return (y1 - y2) / (2*eps);
+  }
+
+  function dEval(codeF, codeD, x){
+    if (codeD){
+      const v = codeD.evaluate(getScope(x));
+      if (isFinite(v)) return v;
+    }
+    return dNumerical(codeF, x);
+  }
+
+  // auto y-range from sampled points (robust)
+  function autoYRange(points){
+    let lo = Infinity, hi = -Infinity;
+    for(const p of points){
+      if (!isFinite(p.y)) continue;
+      lo = Math.min(lo, p.y);
+      hi = Math.max(hi, p.y);
+    }
+    if (!isFinite(lo) || !isFinite(hi)) return {ymin:-1, ymax:1};
+    if (lo === hi){
+      const pad = (Math.abs(lo) || 1) * 0.5;
+      return {ymin: lo - pad, ymax: hi + pad};
+    }
+    const pad = 0.12 * (hi - lo);
+    return {ymin: lo - pad, ymax: hi + pad};
+  }
+
+  function computePoints(codeF, xmin, xmax, n){
+    const pts = [];
+    for(let i=0;i<n;i++){
+      const t = i/(n-1);
+      const x = xmin + t*(xmax-xmin);
+      let y;
+      try{ y = fEval(codeF, x); }
+      catch(e){ y = NaN; }
+      pts.push({x,y});
+    }
+    return pts;
+  }
+
+  // --- UI + Rendering ---
+  async function typeset(){
+    if (window.MathJax && MathJax.typesetPromise){
+      await MathJax.typesetPromise();
+    }
+  }
+
+  function updateMathBlocks({expr, dExpr}, x0, h, f0, f1, secant, deriv, tangentB){
+    // 公式：定义、当前数值、符号导数
+    el.m_def.innerHTML = `
+      <b>导数定义（Definition）</b><br/>
+      \\[
+        f'(x_0)=\\lim_{h\\to 0}\\frac{f(x_0+h)-f(x_0)}{h}
+      \\]
+      <span style="color:#a3b3cc;font-size:12px">
+        解释：当 \\(h\\) 很小，差商 \\(\\frac{f(x_0+h)-f(x_0)}{h}\\) 近似切线斜率；当 \\(h\\to 0\\)，它收敛为导数。
+      </span>
+    `;
+
+    el.m_now.innerHTML = `
+      <b>当前计算（Current）</b><br/>
+      \\[
+        f(x)=${expr.replace(/\\/g,'\\\\')}
+      \\]
+      \\[
+        x_0=${fmt(x0,4)},\\quad h=${fmt(h,4)}
+      \\]
+      \\[
+        f(x_0)=${fmt(f0,6)},\\quad f(x_0+h)=${fmt(f1,6)}
+      \\]
+      \\[
+        \\text{差商 }\\frac{f(x_0+h)-f(x_0)}{h}=${fmt(secant,8)}
+      \\]
+      \\[
+        \\text{导数 }f'(x_0)\\approx ${fmt(deriv,8)}
+      \\]
+      \\[
+        \\text{切线： } y=f(x_0)+f'(x_0)(x-x_0)=${fmt(tangentB,6)} + (${fmt(deriv,6)})x
+      \\]
+    `;
+
+    if (dExpr){
+      el.m_sym.innerHTML = `
+        <b>符号求导（Symbolic Derivative）</b><br/>
+        \\[
+          f'(x) = ${dExpr.replace(/\\/g,'\\\\')}
+        \\]
+        <span style="color:#a3b3cc;font-size:12px">
+          注：若表达式过于复杂或包含不支持的运算，系统会自动使用数值导数近似。
+        </span>
+      `;
+    }else{
+      el.m_sym.innerHTML = `
+        <b>符号求导（Symbolic Derivative）</b><br/>
+        <span style="color:#ffcc66">当前表达式无法稳定符号求导，已自动改用数值导数（中心差分）近似。</span>
+      `;
+    }
+  }
+
+  function drawMainPlot(codeF, codeD, xmin, xmax, n, x0, h){
+    const pts = computePoints(codeF, xmin, xmax, n);
+    const {ymin, ymax} = autoYRange(pts);
+    const view = { xmin, xmax, ymin, ymax, pad: 46 };
+
+    // key values
+    let f0 = NaN, f1 = NaN;
+    try{ f0 = fEval(codeF, x0); }catch(e){ f0 = NaN; }
+    try{ f1 = fEval(codeF, x0 + h); }catch(e){ f1 = NaN; }
+    const secant = (isFinite(f0) && isFinite(f1) && h !== 0) ? (f1 - f0)/h : NaN;
+    const deriv = (isFinite(f0)) ? dEval(codeF, codeD, x0) : NaN;
+
+    // tangent line: y = m x + b, where b = f0 - m*x0
+    const b = (isFinite(f0) && isFinite(deriv)) ? (f0 - deriv*x0) : NaN;
+
+    // --- render ---
+    P1.clear();
+    P1.drawAxes(view);
+
+    // curve
+    P1.drawPolyline(pts, view, { stroke:'rgba(79,209,197,.95)', width:2.4 });
+
+    // secant line across the full view (if valid)
+    if (isFinite(secant) && isFinite(f0)){
+      const bS = f0 - secant*x0;
+      const yL = secant*xmin + bS;
+      const yR = secant*xmax + bS;
+      P1.drawLineByTwoPoints(xmin, yL, xmax, yR, view, { stroke:'rgba(255,204,102,.85)', width:2, dash:[6,6] });
+    }
+
+    // tangent line across the full view (if valid)
+    if (isFinite(deriv) && isFinite(b)){
+      const yL = deriv*xmin + b;
+      const yR = deriv*xmax + b;
+      P1.drawLineByTwoPoints(xmin, yL, xmax, yR, view, { stroke:'rgba(255,90,90,.92)', width:2.4 });
+    }
+
+    // points
+    if (isFinite(f0)) P1.drawPoint(x0, f0, view, { fill:'rgba(255,255,255,.9)', r:5 });
+    if (isFinite(f1)) P1.drawPoint(x0+h, f1, view, { fill:'rgba(255,204,102,.95)', r:5 });
+
+    P1.drawLegend([
+      { text:'f(x)', color:'rgba(79,209,197,.95)' },
+      { text:'切线', color:'rgba(255,90,90,.92)' },
+      { text:'割线', color:'rgba(255,204,102,.85)' },
+    ]);
+
+    return { pts, view, f0, f1, secant, deriv, b };
+  }
+
+  function drawZoomPlot(codeF, codeD, x0, h){
+    // zoomed view around x0: show how secant approaches tangent as h changes
+    const span = Math.max(0.6, Math.min(4, Math.abs(h)*2.5 + 0.6));
+    const xmin = x0 - span, xmax = x0 + span;
+    const n = 800;
+
+    const pts = computePoints(codeF, xmin, xmax, n);
+    const {ymin, ymax} = autoYRange(pts);
+    const view = { xmin, xmax, ymin, ymax, pad: 46 };
+
+    let f0 = NaN, f1 = NaN;
+    try{ f0 = fEval(codeF, x0); }catch(e){ f0 = NaN; }
+    try{ f1 = fEval(codeF, x0 + h); }catch(e){ f1 = NaN; }
+    const secant = (isFinite(f0) && isFinite(f1) && h !== 0) ? (f1 - f0)/h : NaN;
+    const deriv = (isFinite(f0)) ? dEval(codeF, codeD, x0) : NaN;
+
+    const bT = (isFinite(f0) && isFinite(deriv)) ? (f0 - deriv*x0) : NaN;
+    const bS = (isFinite(f0) && isFinite(secant)) ? (f0 - secant*x0) : NaN;
+
+    P2.clear();
+    P2.drawAxes(view);
+
+    // curve
+    P2.drawPolyline(pts, view, { stroke:'rgba(79,209,197,.95)', width:2.4 });
+
+    // tangent
+    if (isFinite(deriv) && isFinite(bT)){
+      P2.drawLineByTwoPoints(xmin, deriv*xmin + bT, xmax, deriv*xmax + bT, view, { stroke:'rgba(255,90,90,.92)', width:2.4 });
+    }
+
+    // secant
+    if (isFinite(secant) && isFinite(bS)){
+      P2.drawLineByTwoPoints(xmin, secant*xmin + bS, xmax, secant*xmax + bS, view, { stroke:'rgba(255,204,102,.85)', width:2, dash:[6,6] });
+    }
+
+    if (isFinite(f0)) P2.drawPoint(x0, f0, view, { fill:'rgba(255,255,255,.9)', r:5 });
+    if (isFinite(f1)) P2.drawPoint(x0+h, f1, view, { fill:'rgba(255,204,102,.95)', r:5 });
+
+    P2.drawLegend([
+      { text:'局部 f(x)', color:'rgba(79,209,197,.95)' },
+      { text:'局部切线', color:'rgba(255,90,90,.92)' },
+      { text:'局部割线', color:'rgba(255,204,102,.85)' },
+    ]);
+
+    return { xmin, xmax, f0, f1, secant, deriv };
+  }
+
+  async function update(){
+    showStatus('');
+
+    // read inputs
+    const xmin = Number(el.xmin.value);
+    const xmax = Number(el.xmax.value);
+    const n = clamp(Number(el.samples.value) || 900, 200, 4000);
+
+    let x0 = Number(el.x0.value);
+    let h  = Number(el.h.value);
+
+    // guard: xmin < xmax
+    if (!(xmax > xmin)){
+      showStatus('请确保 x_max > x_min。');
+      return;
+    }
+
+    // avoid h=0 exactly (for secant slope display); allow extremely small but not 0
+    if (Math.abs(h) < 1e-12) h = 1e-12;
+
+    // compile
+    let compiled;
+    try{
+      compiled = compileAll();
+    }catch(e){
+      showStatus('解析函数失败：' + (e.message || String(e)));
+      return;
+    }
+
+    const { expr, codeF, dExpr, codeD } = compiled;
+
+    // main + zoom plots
+    let main;
+    try{
+      main = drawMainPlot(codeF, codeD, xmin, xmax, n, x0, h);
+      drawZoomPlot(codeF, codeD, x0, h);
+    }catch(e){
+      showStatus('绘图/计算失败：' + (e.message || String(e)));
+      return;
+    }
+
+    // fill KPI cards
+    const { f0, f1, secant, deriv, b } = main;
+
+    el.kv_point.textContent  = `x0=${fmt(x0,4)}，f(x0)=${fmt(f0,6)}；x0+h=${fmt(x0+h,4)}，f(x0+h)=${fmt(f1,6)}`;
+    el.kv_secant.textContent = isFinite(secant) ? `(${fmt(f1,6)} - ${fmt(f0,6)}) / ${fmt(h,6)} = ${fmt(secant,10)}` : 'NaN（检查定义域/参数）';
+    el.kv_deriv.textContent  = isFinite(deriv)  ? `f'(x0) ≈ ${fmt(deriv,10)}` : 'NaN（检查定义域/参数）';
+
+    // tangent equation in y = m x + b form
+    if (isFinite(deriv) && isFinite(b)){
+      el.kv_tangent.textContent = `y = (${fmt(deriv,8)}) x + (${fmt(b,8)})`;
+    }else{
+      el.kv_tangent.textContent = 'NaN（无法构造切线）';
+    }
+
+    // math explanation blocks
+    const tangentB = isFinite(b) ? b : NaN;
+    updateMathBlocks({expr, dExpr}, x0, h, f0, f1, secant, deriv, tangentB);
+
+    await typeset();
+  }
+
+  // --- Bind events ---
+  const inputs = ['expr','a','b','c','k','r','x0','h','xmin','xmax','samples'];
+  inputs.forEach(id=>{
+    el[id].addEventListener('input', ()=>{ update(); });
+    el[id].addEventListener('change', ()=>{ update(); });
+  });
+
+  // initial render after libs loaded
+  function waitLibs(){
+    if (!window.math || !window.MathJax) return setTimeout(waitLibs, 50);
+    update();
+  }
+  waitLibs();
+})();
+</script>
+
+</body>
+</html>
