@@ -1,0 +1,54 @@
+紫老板 · 资源库
+产品 案例 FAQ 联系
+banner 1
+banner 2
+banner 3
+温暖治愈 · 即买即用
+{{ title }}
+{{ subtitle }}
+
+立即查看产品 看案例
+2,500+
+PPT 模板
+1,000+
+简历模板
+即买即用
+可编辑、可复用
+‹ ›
+热门产品
+为 25–35 岁职场人设计：省时间、可复用、能直接交付。
+
+{% for p in products %}
+{{ p.tag }} {{ p.badge }}
+{{ p.title }}
+{{ p.desc }}
+
+¥{{ p.price }}
+获取
+{% endfor %}
+使用场景
+把模板当成“交付结构”，你就能更快拿结果。
+
+{% for s in sections %}
+{{ s.title }}
+{{ s.title }}
+{{ s.desc }}
+
+{% for b in s.bullets %}
+{{ b }}
+{% endfor %}
+去看产品 联系获取
+{% endfor %}
+FAQ
+你可能会关心的 3 个问题。
+
+模板是图片吗？可以编辑吗？
+不是图片。文字、形状、图表都可编辑，适配 WPS/Office（具体看产品说明）。
+
+适合什么人？
+怎么获取？
+联系我获取资源
+先把入口放这里。下一步我们可以做“表单提交 → 保存到本地/数据库”。
+
+发邮件咨询
+© {{ title }} · Powered by FastAPI
