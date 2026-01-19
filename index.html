@@ -1,54 +1,1529 @@
-紫老板 · 资源库
-产品 案例 FAQ 联系
-banner 1
-banner 2
-banner 3
-温暖治愈 · 即买即用
-{{ title }}
-{{ subtitle }}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>机械结构交互式结构库（公式/推导/变量联动/图表）</title>
 
-立即查看产品 看案例
-2,500+
-PPT 模板
-1,000+
-简历模板
-即买即用
-可编辑、可复用
-‹ ›
-热门产品
-为 25–35 岁职场人设计：省时间、可复用、能直接交付。
+  <!-- MathJax 渲染 LaTeX 公式（需要联网；想离线我也能给你离线版打包方案） -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-{% for p in products %}
-{{ p.tag }} {{ p.badge }}
-{{ p.title }}
-{{ p.desc }}
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a2f; --card:#111c33;
+      --text:#e8eef7; --muted:#a3b3cc; --accent:#4fd1c5;
+      --line:#233455; --warn:#ffcc66; --bad:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",Arial;
+      background:linear-gradient(180deg,#071024 0%, #07162a 60%, #06101f 100%);
+      color:var(--text);
+    }
+    .wrap{max-width:1280px; margin:0 auto; padding:18px;}
+    header{
+      display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:12px; margin-bottom:14px;
+    }
+    header h1{margin:0; font-size:20px; letter-spacing:.3px;}
+    header .sub{color:var(--muted); font-size:13px; line-height:1.35; max-width:820px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background:rgba(79,209,197,.10); border:1px solid rgba(79,209,197,.25);
+      color:var(--text); font-size:12px;
+    }
+    .grid{
+      display:grid; gap:14px;
+      grid-template-columns: 380px 1fr;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
+    .panel{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .panel .hd{
+      padding:12px 14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-weight:700;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .panel .bd{padding:12px 14px}
+    select, input[type="number"], input[type="text"]{
+      width:100%;
+      padding:9px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
+    }
+    input[type="range"]{width:100%}
+    .row{display:flex; gap:10px; align-items:center; margin:10px 0}
+    label{font-size:13px; color:var(--muted); min-width:92px}
+    .hint{color:var(--muted); font-size:12px; line-height:1.45; margin-top:6px}
+    .status{
+      margin-top:10px; padding:10px 12px; border-radius:12px;
+      border:1px solid rgba(255,204,102,.25);
+      background:rgba(255,204,102,.08);
+      color:var(--warn); font-size:12px; line-height:1.45;
+      display:none;
+    }
+    .kvs{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 1100px){
+      .kvs{grid-template-columns: repeat(2, 1fr);}
+    }
+    .kv{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px;
+    }
+    .kv .k{color:var(--muted); font-size:12px}
+    .kv .v{margin-top:4px; font-weight:800; font-size:14px; word-break:break-word}
+    .kv .u{color:var(--muted); font-size:12px; margin-left:6px; font-weight:600}
+    .canvasWrap{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    @media (max-width: 980px){
+      .canvasWrap{grid-template-columns:1fr}
+    }
+    canvas{
+      width:100%; height:340px; display:block;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+    }
+    details{
+      margin-top:10px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    summary{cursor:pointer; font-weight:700}
+    .mathBlock{margin:8px 0; color:var(--text)}
+    .small{color:var(--muted); font-size:12px; line-height:1.45}
+    .foot{color:var(--muted); font-size:12px; margin-top:10px}
+    .tagBad{
+      display:inline-block; margin-left:8px;
+      padding:2px 8px; border-radius:999px;
+      background:rgba(255,107,107,.12); border:1px solid rgba(255,107,107,.28);
+      color:var(--bad); font-size:12px; font-weight:700;
+    }
+    .tagOk{
+      display:inline-block; margin-left:8px;
+      padding:2px 8px; border-radius:999px;
+      background:rgba(79,209,197,.10); border:1px solid rgba(79,209,197,.25);
+      color:var(--accent); font-size:12px; font-weight:700;
+    }
+    .divider{border:none;border-top:1px solid rgba(255,255,255,.08); margin:12px 0}
+  </style>
+</head>
 
-¥{{ p.price }}
-获取
-{% endfor %}
-使用场景
-把模板当成“交付结构”，你就能更快拿结果。
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>机械结构交互式结构库（Mechanical Structures Library）</h1>
+      <div class="sub">
+        选择结构 → 调变量 → 公式/推导/图表实时更新。<br>
+        这是一个可扩展框架：你要加入“轴承寿命、焊缝、键连接、丝杠、行星齿轮、链传动、凸轮、四杆机构…”我可以直接按同一模块格式继续往里加。
+      </div>
+    </div>
+    <div class="pill">单文件 · 可运行 · 变量联动 · 图表实时更新</div>
+  </header>
 
-{% for s in sections %}
-{{ s.title }}
-{{ s.title }}
-{{ s.desc }}
+  <div class="grid">
+    <!-- 左侧：选择结构 + 输入变量 -->
+    <section class="panel">
+      <div class="hd">
+        <span>结构选择与输入</span>
+        <span id="moduleBadge" class="tagOk">READY</span>
+      </div>
+      <div class="bd">
+        <div class="row" style="align-items:flex-start">
+          <label>结构类型</label>
+          <div style="flex:1">
+            <select id="moduleSelect"></select>
+            <div class="hint" id="moduleDesc"></div>
+          </div>
+        </div>
 
-{% for b in s.bullets %}
-{{ b }}
-{% endfor %}
-去看产品 联系获取
-{% endfor %}
-FAQ
-你可能会关心的 3 个问题。
+        <div class="divider"></div>
+        <div id="inputsArea"></div>
 
-模板是图片吗？可以编辑吗？
-不是图片。文字、形状、图表都可编辑，适配 WPS/Office（具体看产品说明）。
+        <div class="status" id="status"></div>
 
-适合什么人？
-怎么获取？
-联系我获取资源
-先把入口放这里。下一步我们可以做“表单提交 → 保存到本地/数据库”。
+        <div class="foot">
+          单位默认 SI：长度 m，力 N，力矩 N·m，应力 Pa（显示会自动换算为 MPa），弹性模量 Pa（GPa 输入更直观）。
+        </div>
+      </div>
+    </section>
 
-发邮件咨询
-© {{ title }} · Powered by FastAPI
+    <!-- 右侧：图表 + 公式 + 推导 -->
+    <section class="panel">
+      <div class="hd">
+        <span>图表 · 公式 · 推导</span>
+        <span class="small" id="liveText">—</span>
+      </div>
+      <div class="bd">
+        <div class="canvasWrap">
+          <div>
+            <div class="small">示意图（结构 + 载荷）</div>
+            <canvas id="schematic" width="980" height="340"></canvas>
+          </div>
+          <div>
+            <div class="small">曲线图（随变量变化）</div>
+            <canvas id="chart" width="980" height="340"></canvas>
+          </div>
+        </div>
+
+        <div class="kvs" id="outputsArea"></div>
+
+        <hr class="divider" />
+
+        <div id="mathArea">
+          <div class="mathBlock" id="mathMain"></div>
+          <div class="mathBlock" id="mathVars"></div>
+        </div>
+
+        <details open>
+          <summary>原理与设计要点（Principle & Design Notes）</summary>
+          <div class="hint" id="principleArea"></div>
+        </details>
+
+        <details>
+          <summary>推导过程（Derivation Steps）</summary>
+          <div class="hint" id="derivationArea"></div>
+        </details>
+
+        <details>
+          <summary>你可以怎么扩展这个库（Add new structures）</summary>
+          <div class="hint">
+            每个结构模块由 5 部分组成：<br>
+            1) 输入变量定义 inputs（含单位/范围/默认值）<br>
+            2) compute() 计算输出（并在这里把变量之间的联动写清楚）<br>
+            3) formulas：主公式 + 变量说明（LaTeX）<br>
+            4) drawSchematic() 画结构示意图<br>
+            5) drawChart() 画曲线图（例如挠度曲线、扭转剪应力分布、力-位移曲线）<br><br>
+            你只要告诉我“要加入的结构 + 你希望的变量与输出”，我就能按此框架继续添加。
+          </div>
+        </details>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- Utils ----------
+  const $ = (id) => document.getElementById(id);
+  const fmt = (x, d=6) => {
+    if (!isFinite(x)) return 'NaN';
+    const ax = Math.abs(x);
+    if (ax !== 0 && (ax < 1e-4 || ax > 1e6)) return x.toExponential(4);
+    return Number(x).toFixed(d).replace(/\.?0+$/,'');
+  };
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  function showStatus(msg){
+    const el = $('status');
+    el.style.display = msg ? 'block' : 'none';
+    el.textContent = msg || '';
+  }
+  function setBadge(ok, text){
+    const b = $('moduleBadge');
+    b.className = ok ? 'tagOk' : 'tagBad';
+    b.textContent = text || (ok ? 'READY' : 'CHECK');
+  }
+
+  async function typeset(){
+    if (window.MathJax && MathJax.typesetPromise){
+      await MathJax.typesetPromise();
+    }
+  }
+
+  // ---------- Canvas helpers ----------
+  function makeCanvas(canvas){
+    const ctx = canvas.getContext('2d');
+    function clear(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
+    function text(str, x, y, alpha=0.85){
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = 'rgba(255,255,255,.9)';
+      ctx.font = '12px system-ui,-apple-system,Segoe UI,Arial';
+      ctx.fillText(str, x, y);
+      ctx.restore();
+    }
+    function line(x1,y1,x2,y2, style={}){
+      ctx.save();
+      ctx.strokeStyle = style.stroke || 'rgba(255,255,255,.85)';
+      ctx.lineWidth = style.w || 2;
+      if (style.dash) ctx.setLineDash(style.dash);
+      ctx.globalAlpha = style.a ?? 1;
+      ctx.beginPath();
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.restore();
+    }
+    function rect(x,y,w,h, style={}){
+      ctx.save();
+      ctx.fillStyle = style.fill || 'rgba(255,255,255,.06)';
+      ctx.strokeStyle = style.stroke || 'rgba(255,255,255,.18)';
+      ctx.lineWidth = style.w || 2;
+      ctx.globalAlpha = style.a ?? 1;
+      ctx.beginPath();
+      ctx.rect(x,y,w,h);
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    function circle(x,y,r, style={}){
+      ctx.save();
+      ctx.fillStyle = style.fill || 'rgba(255,255,255,.12)';
+      ctx.strokeStyle = style.stroke || 'rgba(255,255,255,.25)';
+      ctx.lineWidth = style.w || 2;
+      ctx.globalAlpha = style.a ?? 1;
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    function arrow(x1,y1,x2,y2, style={}){
+      line(x1,y1,x2,y2, style);
+      const ang = Math.atan2(y2-y1, x2-x1);
+      const L = style.head || 10;
+      const a = style.a ?? 1;
+      const stroke = style.stroke || 'rgba(255,255,255,.85)';
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = style.w || 2;
+      ctx.beginPath();
+      ctx.moveTo(x2,y2);
+      ctx.lineTo(x2 - L*Math.cos(ang - Math.PI/7), y2 - L*Math.sin(ang - Math.PI/7));
+      ctx.moveTo(x2,y2);
+      ctx.lineTo(x2 - L*Math.cos(ang + Math.PI/7), y2 - L*Math.sin(ang + Math.PI/7));
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // simple chart: world coords -> screen coords
+    function plotAxes(view){
+      const {xmin,xmax,ymin,ymax,pad} = view;
+      const W = canvas.width, H = canvas.height;
+      const toS = (x,y) => {
+        const sx = pad + (x - xmin)*(W-2*pad)/(xmax-xmin);
+        const sy = H - pad - (y - ymin)*(H-2*pad)/(ymax-ymin);
+        return [sx,sy];
+      };
+
+      ctx.save();
+      // grid
+      ctx.strokeStyle = 'rgba(255,255,255,.08)';
+      ctx.lineWidth = 1;
+      const N=10;
+      for(let i=0;i<=N;i++){
+        const t=i/N;
+        const x=xmin+t*(xmax-xmin);
+        const y=ymin+t*(ymax-ymin);
+        let [sx1,sy1]=toS(x,ymin), [sx2,sy2]=toS(x,ymax);
+        ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
+        [sx1,sy1]=toS(xmin,y); [sx2,sy2]=toS(xmax,y);
+        ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
+      }
+      // axes
+      ctx.strokeStyle='rgba(255,255,255,.35)';
+      ctx.lineWidth=1.2;
+      if (ymin<=0 && ymax>=0){
+        const [sx1,sy1]=toS(xmin,0), [sx2,sy2]=toS(xmax,0);
+        ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
+      }
+      if (xmin<=0 && xmax>=0){
+        const [sx1,sy1]=toS(0,ymin), [sx2,sy2]=toS(0,ymax);
+        ctx.beginPath(); ctx.moveTo(sx1,sy1); ctx.lineTo(sx2,sy2); ctx.stroke();
+      }
+      // labels
+      ctx.fillStyle='rgba(255,255,255,.75)';
+      ctx.font='12px system-ui,-apple-system,Segoe UI,Arial';
+      ctx.fillText(`x:[${fmt(xmin,2)}, ${fmt(xmax,2)}]`, 12, 18);
+      ctx.fillText(`y:[${fmt(ymin,2)}, ${fmt(ymax,2)}]`, 12, 36);
+      ctx.restore();
+
+      return {toS};
+    }
+
+    function plotLine(points, toS, style={}){
+      ctx.save();
+      ctx.strokeStyle = style.stroke || 'rgba(79,209,197,.95)';
+      ctx.lineWidth = style.w || 2.4;
+      ctx.globalAlpha = style.a ?? 1;
+      if (style.dash) ctx.setLineDash(style.dash);
+      ctx.beginPath();
+      let started=false;
+      for(const p of points){
+        if(!isFinite(p.x)||!isFinite(p.y)){ started=false; continue; }
+        const [sx,sy]=toS(p.x,p.y);
+        if(!started){ ctx.moveTo(sx,sy); started=true; }
+        else ctx.lineTo(sx,sy);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function plotLegend(items){
+      ctx.save();
+      ctx.font='12px system-ui,-apple-system,Segoe UI,Arial';
+      let x=14, y=canvas.height-14;
+      for(const it of items){
+        ctx.fillStyle='rgba(0,0,0,.35)';
+        ctx.fillRect(x-6, y-18, ctx.measureText(it.text).width + 46, 22);
+        ctx.fillStyle=it.color;
+        ctx.fillRect(x, y-12, 18, 4);
+        ctx.fillStyle='rgba(255,255,255,.85)';
+        ctx.fillText(it.text, x+26, y-6);
+        x += ctx.measureText(it.text).width + 62;
+      }
+      ctx.restore();
+    }
+
+    return {ctx, clear, text, line, rect, circle, arrow, plotAxes, plotLine, plotLegend};
+  }
+
+  const S = makeCanvas($('schematic'));
+  const C = makeCanvas($('chart'));
+
+  // ---------- Outputs cards ----------
+  function renderOutputs(outputs){
+    const box = $('outputsArea');
+    box.innerHTML = '';
+    for(const o of outputs){
+      const div = document.createElement('div');
+      div.className = 'kv';
+      div.innerHTML = `
+        <div class="k">${o.label}</div>
+        <div class="v">${o.value}<span class="u">${o.unit||''}</span></div>
+        ${o.note ? `<div class="small" style="margin-top:6px">${o.note}</div>` : ``}
+      `;
+      box.appendChild(div);
+    }
+  }
+
+  // ---------- Inputs UI ----------
+  function renderInputs(inputs, state, onChange){
+    const area = $('inputsArea');
+    area.innerHTML = '';
+    inputs.forEach(inp => {
+      const wrap = document.createElement('div');
+
+      // label row
+      const row1 = document.createElement('div');
+      row1.className = 'row';
+      row1.style.alignItems = 'flex-start';
+
+      const lab = document.createElement('label');
+      lab.textContent = inp.label;
+
+      const right = document.createElement('div');
+      right.style.flex = '1';
+
+      // numeric or select + optional slider
+      if (inp.type === 'select'){
+        const sel = document.createElement('select');
+        sel.value = state[inp.key] ?? inp.default;
+        inp.options.forEach(op => {
+          const opt = document.createElement('option');
+          opt.value = op.value;
+          opt.textContent = op.text;
+          sel.appendChild(opt);
+        });
+        sel.addEventListener('change', () => {
+          state[inp.key] = sel.value;
+          onChange();
+        });
+        right.appendChild(sel);
+      } else {
+        const num = document.createElement('input');
+        num.type = 'number';
+        num.step = inp.step ?? 'any';
+        if (inp.min != null) num.min = inp.min;
+        if (inp.max != null) num.max = inp.max;
+        num.value = state[inp.key] ?? inp.default;
+
+        num.addEventListener('input', () => {
+          const v = Number(num.value);
+          state[inp.key] = v;
+          // sync slider if present
+          if (slider) slider.value = v;
+          onChange();
+        });
+
+        right.appendChild(num);
+
+        let slider = null;
+        if (inp.slider){
+          slider = document.createElement('input');
+          slider.type = 'range';
+          slider.min = inp.min ?? 0;
+          slider.max = inp.max ?? 1;
+          slider.step = inp.step ?? 0.01;
+          slider.value = num.value;
+
+          slider.addEventListener('input', () => {
+            num.value = slider.value;
+            state[inp.key] = Number(slider.value);
+            onChange();
+          });
+
+          const r = document.createElement('div');
+          r.className = 'row';
+          r.style.margin = '8px 0 0 0';
+          r.style.gap = '10px';
+          const l2 = document.createElement('div');
+          l2.style.minWidth = '92px';
+          l2.style.color = 'transparent';
+          l2.textContent = '.';
+          r.appendChild(l2);
+          const rr = document.createElement('div');
+          rr.style.flex = '1';
+          rr.appendChild(slider);
+          r.appendChild(rr);
+
+          wrap.appendChild(r);
+        }
+
+        if (inp.hint){
+          const h = document.createElement('div');
+          h.className = 'hint';
+          h.innerHTML = inp.hint;
+          right.appendChild(h);
+        }
+      }
+
+      row1.appendChild(lab);
+      row1.appendChild(right);
+      wrap.appendChild(row1);
+
+      area.appendChild(wrap);
+    });
+  }
+
+  // ---------- Structure Modules ----------
+  // 默认单位：L[m], b[m], h[m], d[m], E[Pa], G[Pa], P[N], T[Nm], F[N]
+  // 显示时会自动换算一些工程更常用的单位（MPa, GPa, mm）
+  function MPa(pa){ return pa / 1e6; }
+  function GPa(pa){ return pa / 1e9; }
+
+  const modules = [
+    {
+      id: 'beam_cantilever_endload',
+      name: '悬臂梁（端部集中载荷） Cantilever Beam (End Load)',
+      desc: '典型：一端固定，另一端受力。输出：最大弯曲应力、端点挠度、挠度曲线。',
+      inputs: [
+        {key:'L', label:'梁长 L (m)', type:'number', default:1.0, min:0.1, max:5, step:0.01, slider:true},
+        {key:'b', label:'截面宽 b (m)', type:'number', default:0.04, min:0.005, max:0.2, step:0.001, slider:true, hint:'矩形截面：惯性矩 \\(I=\\frac{b h^3}{12}\\)。'},
+        {key:'h', label:'截面高 h (m)', type:'number', default:0.06, min:0.005, max:0.3, step:0.001, slider:true},
+        {key:'E_GPa', label:'弹性模量 E (GPa)', type:'number', default:200, min:1, max:300, step:1, slider:true},
+        {key:'P', label:'端载 P (N)', type:'number', default:800, min:0, max:50000, step:10, slider:true},
+      ],
+      compute(s){
+        const L=s.L, b=s.b, h=s.h, E=s.E_GPa*1e9, P=s.P;
+        const I = b*Math.pow(h,3)/12;
+        const Mmax = P*L;
+        const c = h/2;
+        const sigma = Mmax*c / I; // Pa
+        const delta = P*Math.pow(L,3)/(3*E*I); // m
+
+        // deflection curve: y(x) = P x^2 (3L-x) / (6 E I)
+        const pts=[];
+        const n=240;
+        for(let i=0;i<=n;i++){
+          const x = L*i/n;
+          const y = P*x*x*(3*L-x)/(6*E*I);
+          pts.push({x, y});
+        }
+        return {
+          outputs: [
+            {label:'惯性矩 I', value: fmt(I,8), unit:'m⁴', note:'截面抵抗弯曲能力的核心几何量'},
+            {label:'最大弯矩 Mmax', value: fmt(Mmax,4), unit:'N·m'},
+            {label:'最大弯曲应力 σmax', value: fmt(MPa(sigma),4), unit:'MPa', note:'\\(\\sigma=\\frac{M c}{I}\\)'},
+            {label:'端点挠度 δ(L)', value: fmt(delta*1000,4), unit:'mm', note:'\\(\\delta=\\frac{P L^3}{3 E I}\\)'},
+          ],
+          chart: { pts, xLabel:'x (m)', yLabel:'挠度 y (m)', title:'挠度曲线 y(x)' },
+          extra: {I, sigma, delta, Mmax}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            I=\\frac{b h^3}{12},\\quad M_{max}=PL
+          \\]
+          \\[
+            \\sigma_{max}=\\frac{M_{max} (h/2)}{I}
+          \\]
+          \\[
+            \\delta(L)=\\frac{P L^3}{3 E I},\\quad
+            y(x)=\\frac{P x^2(3L-x)}{6EI}
+          \\]
+        `,
+        vars: `
+          \\[
+            L: 梁长,\\; b,h: 截面尺寸,\\; E: 弹性模量,\\; P: 端部载荷,\\; I: 截面惯性矩
+          \\]
+        `
+      },
+      principle: `
+        这类问题属于<b>小挠度线弹性梁理论（Euler–Bernoulli）</b>：<br>
+        - 假设：挠度小、材料线弹性、截面保持平面。<br>
+        - 设计抓手：让 \\(I\\) 变大（增高 h 最有效，因为 \\(I\\propto h^3\\)），或减小 L / P。<br>
+        - 强度看 \\(\\sigma\\)，刚度看 \\(\\delta\\)。通常刚度约束更先触发。
+      `,
+      derivation: `
+        关键关系链：<br>
+        1) 梁弯曲微分方程：\\(EI\\,y''(x)=M(x)\\)。<br>
+        2) 悬臂端载：截面弯矩 \\(M(x)=P(L-x)\\)。<br>
+        3) 对 \\(y''\\) 积分两次并用边界条件（固定端：\\(y(0)=0,\\;y'(0)=0\\)）得到挠度曲线。<br>
+        4) 应力由 \\(\\sigma=\\frac{My}{I}\\)（这里 y 指到中性轴距离，最大为 h/2）得到。
+      `,
+      drawSchematic(S, s){
+        const {L,P}=s;
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+
+        // beam
+        S.rect(120, 170, W-240, 18, {fill:'rgba(79,209,197,.08)', stroke:'rgba(79,209,197,.35)', w:2});
+        // fixed end
+        S.rect(95, 145, 25, 70, {fill:'rgba(255,255,255,.06)', stroke:'rgba(255,255,255,.25)', w:2});
+        for(let i=0;i<9;i++){
+          S.line(95, 145+i*8, 70, 150+i*8, {stroke:'rgba(255,255,255,.18)', w:2});
+        }
+        // load arrow at free end
+        const xEnd = W-120;
+        S.arrow(xEnd, 110, xEnd, 170, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.text('P', xEnd+8, 120);
+        S.text(`L=${fmt(L,3)} m`, 140, 150, 0.8);
+        S.text('悬臂梁：左端固支，右端受端载', 14, 22, 0.9);
+      },
+      drawChart(C, computed){
+        C.clear();
+        const pts = computed.chart.pts;
+        // y-range from pts
+        let ymin=Infinity, ymax=-Infinity;
+        for(const p of pts){ if(!isFinite(p.y)) continue; ymin=Math.min(ymin,p.y); ymax=Math.max(ymax,p.y); }
+        if(!isFinite(ymin)||!isFinite(ymax)){ ymin=-1; ymax=1; }
+        const pad = 46;
+        const view = {xmin:0, xmax:pts[pts.length-1].x, ymin: ymin*1.15, ymax: ymax*1.15 || 1e-9, pad};
+        const {toS} = C.plotAxes(view);
+        C.plotLine(pts, toS, {stroke:'rgba(79,209,197,.95)', w:2.6});
+        C.plotLegend([{text:'y(x) 挠度', color:'rgba(79,209,197,.95)'}]);
+      }
+    },
+
+    {
+      id: 'beam_ss_centerload',
+      name: '简支梁（跨中集中载荷） Simply Supported Beam (Center Load)',
+      desc: '典型：两端简支，跨中受力。输出：最大弯曲应力、最大挠度、挠度曲线。',
+      inputs: [
+        {key:'L', label:'跨长 L (m)', type:'number', default:1.2, min:0.1, max:8, step:0.01, slider:true},
+        {key:'b', label:'截面宽 b (m)', type:'number', default:0.05, min:0.005, max:0.3, step:0.001, slider:true},
+        {key:'h', label:'截面高 h (m)', type:'number', default:0.08, min:0.005, max:0.4, step:0.001, slider:true},
+        {key:'E_GPa', label:'弹性模量 E (GPa)', type:'number', default:70, min:1, max:300, step:1, slider:true},
+        {key:'P', label:'跨中载荷 P (N)', type:'number', default:1200, min:0, max:80000, step:10, slider:true},
+      ],
+      compute(s){
+        const L=s.L, b=s.b, h=s.h, E=s.E_GPa*1e9, P=s.P;
+        const I = b*Math.pow(h,3)/12;
+        const Mmax = P*L/4;
+        const c = h/2;
+        const sigma = Mmax*c / I;
+        const deltaMax = P*Math.pow(L,3)/(48*E*I);
+
+        // deflection curve (piecewise)
+        // for 0<=x<=L/2: y = (P x (3L^2 - 4x^2)) / (48 E I)
+        // for L/2<=x<=L: symmetry y(x)=y(L-x)
+        const pts=[];
+        const n=300;
+        for(let i=0;i<=n;i++){
+          const x = L*i/n;
+          const xx = (x<=L/2) ? x : (L-x);
+          const y = P*xx*(3*L*L - 4*xx*xx)/(48*E*I);
+          pts.push({x, y});
+        }
+        return {
+          outputs: [
+            {label:'惯性矩 I', value: fmt(I,8), unit:'m⁴'},
+            {label:'最大弯矩 Mmax', value: fmt(Mmax,4), unit:'N·m', note:'跨中'},
+            {label:'最大弯曲应力 σmax', value: fmt(MPa(sigma),4), unit:'MPa'},
+            {label:'最大挠度 δmax', value: fmt(deltaMax*1000,4), unit:'mm', note:'跨中'},
+          ],
+          chart: { pts, xLabel:'x (m)', yLabel:'挠度 y (m)', title:'挠度曲线 y(x)' },
+          extra: {I, sigma, deltaMax, Mmax}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            I=\\frac{b h^3}{12},\\quad M_{max}=\\frac{PL}{4}
+          \\]
+          \\[
+            \\sigma_{max}=\\frac{M_{max}(h/2)}{I},\\quad
+            \\delta_{max}=\\frac{P L^3}{48EI}
+          \\]
+          \\[
+            y(x)=\\frac{P x(3L^2-4x^2)}{48EI}\\; (0\\le x\\le L/2),\\;
+            y(x)=y(L-x)
+          \\]
+        `,
+        vars: `
+          \\[
+            L: 跨长,\\; b,h: 截面尺寸,\\; E: 弹性模量,\\; P: 跨中载荷
+          \\]
+        `
+      },
+      principle: `
+        简支梁跨中载荷是“结构力学/材料力学”最经典工况之一：<br>
+        - 最大弯矩出现在跨中：\\(M_{max}=PL/4\\)。<br>
+        - 最大挠度也在跨中：\\(\\delta_{max}=PL^3/(48EI)\\)。<br>
+        - 若你要“更硬”：优先增大 h（对 \\(I\\) 的提升是立方级）。
+      `,
+      derivation: `
+        1) 静力学求支反力：两端各 \\(P/2\\)。<br>
+        2) 写弯矩函数：左半跨 \\(M(x)=\\frac{P}{2}x\\)。<br>
+        3) 代入梁方程 \\(EIy''=M(x)\\)，积分并用边界与对称条件解得挠度曲线。<br>
+        4) 应力由 \\(\\sigma=Mc/I\\) 得到。
+      `,
+      drawSchematic(S, s){
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+
+        // beam
+        S.rect(120, 175, W-240, 18, {fill:'rgba(79,209,197,.08)', stroke:'rgba(79,209,197,.35)', w:2});
+
+        // supports
+        S.line(120, 193, 90, 230, {stroke:'rgba(255,255,255,.22)', w:2});
+        S.line(120, 193, 150, 230, {stroke:'rgba(255,255,255,.22)', w:2});
+        S.line(W-120, 193, W-150, 230, {stroke:'rgba(255,255,255,.22)', w:2});
+        S.line(W-120, 193, W-90, 230, {stroke:'rgba(255,255,255,.22)', w:2});
+
+        // center load
+        const xc = W/2;
+        S.arrow(xc, 105, xc, 175, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.text('P', xc+8, 115);
+        S.text(`L=${fmt(s.L,3)} m`, 140, 155, 0.85);
+        S.text('简支梁：两端简支，跨中集中载荷', 14, 22, 0.9);
+      },
+      drawChart(C, computed){
+        C.clear();
+        const pts = computed.chart.pts;
+        let ymin=Infinity, ymax=-Infinity;
+        for(const p of pts){ if(!isFinite(p.y)) continue; ymin=Math.min(ymin,p.y); ymax=Math.max(ymax,p.y); }
+        if(!isFinite(ymin)||!isFinite(ymax)){ ymin=-1; ymax=1; }
+        const pad=46;
+        const view = {xmin:0, xmax:pts[pts.length-1].x, ymin:ymin*1.15, ymax:ymax*1.15 || 1e-9, pad};
+        const {toS} = C.plotAxes(view);
+        C.plotLine(pts, toS, {stroke:'rgba(79,209,197,.95)', w:2.6});
+        C.plotLegend([{text:'y(x) 挠度', color:'rgba(79,209,197,.95)'}]);
+      }
+    },
+
+    {
+      id: 'shaft_torsion_solid',
+      name: '实心圆轴扭转 Solid Circular Shaft (Torsion)',
+      desc: '输出：最大剪应力、扭转角、剪应力沿半径分布。',
+      inputs: [
+        {key:'d', label:'轴径 d (m)', type:'number', default:0.035, min:0.005, max:0.25, step:0.001, slider:true},
+        {key:'L', label:'轴长 L (m)', type:'number', default:1.0, min:0.1, max:6, step:0.01, slider:true},
+        {key:'T', label:'扭矩 T (N·m)', type:'number', default:180, min:0, max:5000, step:1, slider:true},
+        {key:'G_GPa', label:'剪切模量 G (GPa)', type:'number', default:80, min:1, max:150, step:1, slider:true},
+      ],
+      compute(s){
+        const d=s.d, L=s.L, T=s.T, G=s.G_GPa*1e9;
+        const J = Math.PI*Math.pow(d,4)/32;
+        const tauMax = 16*T/(Math.PI*Math.pow(d,3)); // Pa
+        const theta = T*L/(G*J); // rad
+
+        // shear stress distribution tau(r)=T*r/J, r in [0, d/2]
+        const pts=[];
+        const n=200;
+        const R=d/2;
+        for(let i=0;i<=n;i++){
+          const r = R*i/n;
+          const tau = T*r/J;
+          pts.push({x:r, y:tau});
+        }
+        return {
+          outputs: [
+            {label:'极惯性矩 J', value: fmt(J,8), unit:'m⁴', note:'\\(J=\\pi d^4/32\\)'},
+            {label:'最大剪应力 τmax', value: fmt(MPa(tauMax),4), unit:'MPa', note:'\\(\\tau_{max}=16T/(\\pi d^3)\\)'},
+            {label:'扭转角 θ', value: fmt(theta,6), unit:'rad', note:`≈ ${fmt(theta*180/Math.PI,4)} °`},
+            {label:'线性分布验证', value: 'τ(r) ∝ r', unit:'', note:'剪应力从中心 0 线性增大到外表面最大'},
+          ],
+          chart: { pts, xLabel:'r (m)', yLabel:'τ (Pa)', title:'剪应力分布 τ(r)' },
+          extra: {J, tauMax, theta, R}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            J=\\frac{\\pi d^4}{32}
+          \\]
+          \\[
+            \\tau(r)=\\frac{T r}{J},\\quad \\tau_{max}=\\tau(R)=\\frac{16T}{\\pi d^3}
+          \\]
+          \\[
+            \\theta=\\frac{T L}{GJ}
+          \\]
+        `,
+        vars: `
+          \\[
+            d: 轴径,\\; R=d/2,\\; L: 轴长,\\; T: 扭矩,\\; G: 剪切模量,\\; J: 极惯性矩
+          \\]
+        `
+      },
+      principle: `
+        圆轴扭转的核心是<b>剪应力线性分布</b>：外表面最危险。<br>
+        - 想降应力：增大 d（\\(\\tau\\propto 1/d^3\\)）极其有效。<br>
+        - 想降扭转角：同样增大 d（\\(\\theta\\propto 1/d^4\\)）更有效。<br>
+        - 工程设计常同时检查：强度（\\(\\tau\\)）+ 刚度（\\(\\theta\\)）。
+      `,
+      derivation: `
+        1) 扭转角与剪应变：\\(\\gamma(r)=r\\,\\frac{d\\phi}{dx}\\)。<br>
+        2) 线弹性：\\(\\tau=G\\gamma\\)。<br>
+        3) 扭矩平衡：\\(T=\\int_A \\tau(r)\\,r\\,dA\\) 推出 \\(\\tau(r)=Tr/J\\)。<br>
+        4) 由 \\(\\frac{d\\phi}{dx}=T/(GJ)\\) 积分得到 \\(\\theta=TL/(GJ)\\)。
+      `,
+      drawSchematic(S, s){
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+        // shaft as cylinder projection
+        S.rect(140, 150, W-280, 70, {fill:'rgba(79,209,197,.07)', stroke:'rgba(79,209,197,.35)', w:2});
+        S.circle(140, 185, 35, {fill:'rgba(79,209,197,.05)', stroke:'rgba(79,209,197,.35)', w:2});
+        S.circle(W-140, 185, 35, {fill:'rgba(79,209,197,.05)', stroke:'rgba(79,209,197,.35)', w:2});
+
+        // torque arrows
+        S.arrow(110, 185, 70, 185, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.arrow(W-110, 185, W-70, 185, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.text('T', 62, 175);
+        S.text('T', W-82, 175);
+        S.text(`d=${fmt(s.d,3)} m, L=${fmt(s.L,3)} m`, 14, 22, 0.9);
+        S.text('实心圆轴扭转：剪应力外表面最大', 14, 40, 0.85);
+      },
+      drawChart(C, computed){
+        C.clear();
+        const pts = computed.chart.pts; // x=r, y=tau
+        let ymin=0, ymax=0;
+        for(const p of pts){ if(!isFinite(p.y)) continue; ymax=Math.max(ymax,p.y); }
+        const pad=46;
+        const view = {xmin:0, xmax:pts[pts.length-1].x, ymin:0, ymax:ymax*1.15 || 1, pad};
+        const {toS} = C.plotAxes(view);
+        C.plotLine(pts, toS, {stroke:'rgba(255,204,102,.95)', w:2.6});
+        C.plotLegend([{text:'τ(r)', color:'rgba(255,204,102,.95)'}]);
+      }
+    },
+
+    {
+      id: 'spring_helical_compression',
+      name: '圆柱螺旋压缩弹簧 Helical Compression Spring',
+      desc: '输出：弹簧刚度 k、压缩量 δ、剪应力（含 Wahl 系数近似）。',
+      inputs: [
+        {key:'d', label:'钢丝直径 d (m)', type:'number', default:0.006, min:0.001, max:0.03, step:0.0005, slider:true},
+        {key:'D', label:'平均圈径 D (m)', type:'number', default:0.045, min:0.005, max:0.2, step:0.001, slider:true},
+        {key:'n', label:'有效圈数 n', type:'number', default:8, min:2, max:30, step:1, slider:true},
+        {key:'G_GPa', label:'剪切模量 G (GPa)', type:'number', default:80, min:1, max:120, step:1, slider:true},
+        {key:'F', label:'载荷 F (N)', type:'number', default:250, min:0, max:10000, step:5, slider:true},
+      ],
+      compute(s){
+        const d=s.d, D=s.D, n=s.n, G=s.G_GPa*1e9, F=s.F;
+        const Cidx = D/d; // spring index
+        const k = G*Math.pow(d,4) / (8*Math.pow(D,3)*n); // N/m
+        const delta = (k>0) ? F/k : NaN; // m
+
+        // Wahl factor (approx)
+        const Kw = (4*Cidx - 1)/(4*Cidx - 4) + 0.615/Cidx;
+        const tau = (8*F*D)/(Math.PI*Math.pow(d,3)) * Kw; // Pa
+
+        // Force-deflection line: F = k*δ
+        const pts=[];
+        const npt=120;
+        const dMax = Math.max(delta, 0.02); // up to 20mm or current
+        for(let i=0;i<=npt;i++){
+          const x = dMax*i/npt;
+          pts.push({x, y:k*x});
+        }
+
+        return {
+          outputs: [
+            {label:'弹簧指数 C=D/d', value: fmt(Cidx,4), unit:'', note:'经验上 C≈6~12 更容易制造、应力更均匀'},
+            {label:'刚度 k', value: fmt(k,2), unit:'N/m', note:'\\(k=G d^4/(8D^3 n)\\)'},
+            {label:'压缩量 δ', value: fmt(delta*1000,4), unit:'mm', note:'\\(\\delta=F/k\\)'},
+            {label:'剪应力 τ', value: fmt(MPa(tau),4), unit:'MPa', note:'含 Wahl 修正，考虑曲率与剪切集中'},
+          ],
+          chart: { pts, xLabel:'δ (m)', yLabel:'F (N)', title:'力-位移线性关系' },
+          extra: {k, delta, tau, Kw, Cidx, dMax}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            k=\\frac{G d^4}{8 D^3 n},\\quad \\delta=\\frac{F}{k}
+          \\]
+          \\[
+            \\tau \\approx \\frac{8FD}{\\pi d^3}K_w,\\quad
+            K_w=\\frac{4C-1}{4C-4}+\\frac{0.615}{C},\\; C=\\frac{D}{d}
+          \\]
+        `,
+        vars: `
+          \\[
+            d: 丝径,\\; D: 平均圈径,\\; n: 有效圈数,\\; G: 剪切模量,\\; F: 载荷
+          \\]
+        `
+      },
+      principle: `
+        这类弹簧主要受<b>扭转剪应力</b>，并且存在曲率带来的应力集中，因此常用 Wahl 系数修正。<br>
+        设计抓手：<br>
+        - 想要更硬（k 大）：增大 d（四次方！）或减小 D / n。<br>
+        - 想要应力更低：减小 F、减小 D、增大 d，并选择合理的弹簧指数 C。<br>
+        - 真实设计还需检查：固高、并圈、疲劳、材料与热处理等。
+      `,
+      derivation: `
+        1) 一圈弹簧等效为受扭的圆杆，整体位移来自各圈的扭转叠加。<br>
+        2) 由能量法/变形协调可得刚度：\\(k=Gd^4/(8D^3n)\\)。<br>
+        3) 剪应力基础项 \\(8FD/(\\pi d^3)\\)，再乘 Wahl 系数 \\(K_w\\) 修正曲率与剪切影响。
+      `,
+      drawSchematic(S, s){
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+
+        // spring coil lines
+        const x0=180, x1=W-180;
+        const yMid=185;
+        const amp=45;
+        const turns=8;
+        const steps=240;
+        S.line(x0, yMid, x1, yMid, {stroke:'rgba(255,255,255,.10)', w:1, dash:[6,6]});
+        S.ctx.save();
+        S.ctx.strokeStyle='rgba(79,209,197,.60)';
+        S.ctx.lineWidth=2.2;
+        S.ctx.beginPath();
+        for(let i=0;i<=steps;i++){
+          const t=i/steps;
+          const x = x0 + t*(x1-x0);
+          const y = yMid + amp*Math.sin(2*Math.PI*turns*t);
+          if(i===0) S.ctx.moveTo(x,y);
+          else S.ctx.lineTo(x,y);
+        }
+        S.ctx.stroke();
+        S.ctx.restore();
+
+        // load
+        S.arrow(W/2, 90, W/2, 140, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.text('F', W/2+10, 98);
+        S.text(`d=${fmt(s.d*1000,2)} mm, D=${fmt(s.D*1000,2)} mm, n=${fmt(s.n,0)}`, 14, 22, 0.9);
+        S.text('螺旋压缩弹簧：力-位移近似线性（小变形）', 14, 40, 0.85);
+      },
+      drawChart(C, computed){
+        C.clear();
+        const pts = computed.chart.pts;
+        // range
+        const xmax = computed.extra.dMax;
+        let ymax=0;
+        for(const p of pts){ ymax=Math.max(ymax,p.y); }
+        const pad=46;
+        const view = {xmin:0, xmax:xmax, ymin:0, ymax:ymax*1.15 || 1, pad};
+        const {toS} = C.plotAxes(view);
+        C.plotLine(pts, toS, {stroke:'rgba(79,209,197,.95)', w:2.6});
+        C.plotLegend([{text:'F = k·δ', color:'rgba(79,209,197,.95)'}]);
+      }
+    },
+
+    {
+      id: 'gear_spur_basic',
+      name: '直齿圆柱齿轮（基础载荷/弯曲近似） Spur Gear (Basic Loads & Lewis Bending Approx.)',
+      desc: '输出：节圆直径、切向力/径向力、Lewis 弯曲应力近似（教学版）。',
+      inputs: [
+        {key:'m', label:'模数 m (mm)', type:'number', default:2.5, min:0.5, max:10, step:0.1, slider:true},
+        {key:'z', label:'齿数 z', type:'number', default:24, min:10, max:120, step:1, slider:true},
+        {key:'b', label:'齿宽 b (mm)', type:'number', default:20, min:5, max:120, step:1, slider:true},
+        {key:'T', label:'扭矩 T (N·m)', type:'number', default:60, min:0, max:2000, step:1, slider:true},
+        {key:'phi', label:'压力角 φ (deg)', type:'number', default:20, min:14.5, max:30, step:0.5, slider:true},
+        {key:'Y', label:'Lewis 系数 Y', type:'number', default:0.35, min:0.2, max:0.6, step:0.01, slider:true,
+          hint:'Y 与齿形/齿数有关（教学版先让你手动输入）。'
+        },
+      ],
+      compute(s){
+        const m = s.m/1000;      // m -> meters
+        const z = s.z;
+        const b = s.b/1000;      // mm -> m
+        const T = s.T;
+        const phi = s.phi*Math.PI/180;
+        const Y = s.Y;
+
+        const dp = m*z;          // pitch diameter (m)
+        const Wt = (dp>0) ? 2*T/dp : NaN;     // tangential force at pitch circle
+        const Wr = Wt*Math.tan(phi);          // radial force
+        // Lewis bending stress approx: sigma = Wt / (b * m * Y)
+        const sigma = (b>0 && m>0 && Y>0) ? Wt/(b*m*Y) : NaN;
+
+        // chart: show Wt and Wr vs z? Here show force components bar-like as 2 points
+        const pts = [{x:0, y:0},{x:1, y:Wt}]; // just a line for Wt; we'll draw manually as bars
+
+        return {
+          outputs: [
+            {label:'节圆直径 dp', value: fmt(dp*1000,3), unit:'mm', note:'\\(d_p=m z\\)'},
+            {label:'切向力 Wt', value: fmt(Wt,3), unit:'N', note:'\\(W_t=2T/d_p\\)'},
+            {label:'径向力 Wr', value: fmt(Wr,3), unit:'N', note:'\\(W_r=W_t\\tan\\phi\\)'},
+            {label:'Lewis 弯曲应力 σ', value: fmt(MPa(sigma),3), unit:'MPa', note:'\\(\\sigma\\approx W_t/(b m Y)\\)（教学近似）'},
+          ],
+          chart: { pts, xLabel:'', yLabel:'N', title:'载荷分量示意' },
+          extra: {dp, Wt, Wr, sigma}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            d_p = m z
+          \\]
+          \\[
+            W_t = \\frac{2T}{d_p},\\quad W_r = W_t\\tan\\phi
+          \\]
+          \\[
+            \\sigma_{Lewis} \\approx \\frac{W_t}{b\\,m\\,Y}
+          \\]
+        `,
+        vars: `
+          \\[
+            m: 模数,\\; z: 齿数,\\; b: 齿宽,\\; T: 扭矩,\\; \\phi: 压力角,\\; Y: Lewis 系数
+          \\]
+        `
+      },
+      principle: `
+        直齿轮最基础的载荷分解：<br>
+        - \\(W_t\\)：真正“传递扭矩”的切向力；<br>
+        - \\(W_r\\)：把齿轮推开的径向力（影响轴承/轴挠度）；<br>
+        - Lewis 公式用于齿根弯曲强度的<b>教学近似</b>，真实设计还要考虑动态载荷系数、接触疲劳（赫兹）、材料/热处理、精度等级等。
+      `,
+      derivation: `
+        1) 扭矩与切向力：\\(T=W_t\\cdot (d_p/2)\\Rightarrow W_t=2T/d_p\\)。<br>
+        2) 由压力角定义把法向力分解得到 \\(W_r=W_t\\tan\\phi\\)。<br>
+        3) 齿根弯曲用等效悬臂梁模型得到 Lewis 近似：\\(\\sigma\\approx W_t/(b m Y)\\)。
+      `,
+      drawSchematic(S, s){
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+        const cx=W/2, cy=185;
+        const R=85;
+        // gear circle
+        S.circle(cx, cy, R, {fill:'rgba(79,209,197,.05)', stroke:'rgba(79,209,197,.35)', w:2});
+        // teeth hints
+        for(let i=0;i<18;i++){
+          const a=i*(2*Math.PI/18);
+          const x1=cx+(R-6)*Math.cos(a), y1=cy+(R-6)*Math.sin(a);
+          const x2=cx+(R+10)*Math.cos(a), y2=cy+(R+10)*Math.sin(a);
+          S.line(x1,y1,x2,y2,{stroke:'rgba(79,209,197,.25)', w:2});
+        }
+        // force arrows
+        S.arrow(cx+R, cy, cx+R+80, cy, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.text('Wt', cx+R+88, cy+4);
+        S.arrow(cx+R, cy, cx+R+55, cy-55, {stroke:'rgba(255,255,255,.65)', w:2, head:10});
+        S.text('Wr', cx+R+58, cy-58);
+        S.text(`m=${fmt(s.m,2)} mm, z=${fmt(s.z,0)}, φ=${fmt(s.phi,1)}°`, 14, 22, 0.9);
+        S.text('直齿轮：切向力传扭矩，径向力推轴承', 14, 40, 0.85);
+      },
+      drawChart(C, computed){
+        C.clear();
+        // bar chart style: Wt and Wr
+        const Wt = computed.extra.Wt || 0;
+        const Wr = computed.extra.Wr || 0;
+        const ymax = Math.max(Wt, Wr) * 1.25 || 1;
+        const pad=60;
+        const view = {xmin:0, xmax:1, ymin:0, ymax:ymax, pad};
+        const {toS} = C.plotAxes(view);
+        const ctx=C.ctx;
+
+        function bar(xCenter, value, label, color){
+          const [sx0, sy0] = toS(xCenter-0.12, 0);
+          const [sx1, sy1] = toS(xCenter+0.12, value);
+          const w = sx1-sx0;
+          const h = sy0-sy1;
+          ctx.save();
+          ctx.fillStyle = color;
+          ctx.globalAlpha = 0.85;
+          ctx.fillRect(sx0, sy1, w, h);
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = 'rgba(255,255,255,.85)';
+          ctx.font='12px system-ui,-apple-system,Segoe UI,Arial';
+          ctx.fillText(label, sx0, sy0+16);
+          ctx.fillText(fmt(value,2)+' N', sx0, sy1-6);
+          ctx.restore();
+        }
+
+        bar(0.35, Wt, 'Wt', 'rgba(255,204,102,.95)');
+        bar(0.70, Wr, 'Wr', 'rgba(79,209,197,.95)');
+        C.plotLegend([{text:'载荷分量', color:'rgba(255,255,255,.75)'}]);
+      }
+    },
+
+    {
+      id: 'belt_drive_basic',
+      name: '皮带传动（摩擦极限 + 功率） Belt Drive (Friction Limit & Power)',
+      desc: '输出：张力比、可传功率、是否满足最大张力约束（教学简化）。',
+      inputs: [
+        {key:'mu', label:'摩擦系数 μ', type:'number', default:0.3, min:0.05, max:0.8, step:0.01, slider:true},
+        {key:'theta', label:'包角 θ (deg)', type:'number', default:170, min:60, max:220, step:1, slider:true},
+        {key:'v', label:'带速 v (m/s)', type:'number', default:10, min:0.5, max:50, step:0.1, slider:true},
+        {key:'Tmax', label:'紧边最大张力 T1max (N)', type:'number', default:800, min:50, max:20000, step:10, slider:true},
+        {key:'P_req', label:'需求功率 P (kW)', type:'number', default:3, min:0, max:200, step:0.1, slider:true},
+      ],
+      compute(s){
+        const mu=s.mu;
+        const th=s.theta*Math.PI/180;
+        const v=s.v;
+        const T1max=s.Tmax;
+        const P_req = s.P_req*1000;
+
+        const ratio = Math.exp(mu*th); // T1/T2
+        const T1 = T1max;
+        const T2 = T1/ratio;
+        const P_cap = (T1 - T2) * v; // W
+        const ok = P_cap >= P_req && isFinite(P_cap);
+
+        // chart: P_cap vs v line (keeping mu,theta,T1max)
+        const pts=[];
+        const n=160;
+        const vmax = Math.max(5, v*2);
+        for(let i=0;i<=n;i++){
+          const vv = vmax*i/n;
+          const P = (T1 - T2) * vv;
+          pts.push({x:vv, y:P});
+        }
+
+        return {
+          outputs: [
+            {label:'张力比 T1/T2', value: fmt(ratio,4), unit:'', note:'\\(T_1/T_2=e^{\\mu\\theta}\\)'},
+            {label:'松边张力 T2', value: fmt(T2,2), unit:'N'},
+            {label:'可传功率 Pcap', value: fmt(P_cap/1000,3), unit:'kW', note:'\\(P=(T_1-T_2)v\\)'},
+            {label:'满足需求？', value: ok ? '是' : '否', unit:'', note: ok ? '在 Tmax 约束下可满足需求功率' : '需要提高包角/摩擦/张力上限/带速，或多根带'},
+          ],
+          chart: { pts, xLabel:'v (m/s)', yLabel:'P (W)', title:'Pcap 随带速变化' },
+          extra: {ratio, T1, T2, P_cap, ok, vmax}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            \\frac{T_1}{T_2}=e^{\\mu\\theta},\\quad P=(T_1-T_2)v
+          \\]
+        `,
+        vars: `
+          \\[
+            \\mu: 摩擦系数,\\; \\theta: 包角(弧度),\\; v: 带速,\\; T_1,T_2: 紧边/松边张力
+          \\]
+        `
+      },
+      principle: `
+        皮带传动的“打滑极限”由摩擦决定：<br>
+        - 张力比 \\(T_1/T_2=e^{\\mu\\theta}\\)：包角越大、摩擦越大，越不易打滑。<br>
+        - 能传的功率 \\(P=(T_1-T_2)v\\)：带速越高，传功率能力越强（但也有离心力、寿命、噪声等上限）。<br>
+        这里是教学简化：未显式考虑离心张力、带型、弯曲损失等。
+      `,
+      derivation: `
+        由带与轮的微元平衡：\\(dT=\\mu T d\\theta\\)，积分得到 \\(T_1/T_2=e^{\\mu\\theta}\\)。<br>
+        由功率定义：切向有效力 \\((T_1-T_2)\\) 乘以速度 v 得 \\(P=(T_1-T_2)v\\)。
+      `,
+      drawSchematic(S, s){
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+        const cx1=280, cx2=W-280, cy=185;
+        const R1=70, R2=90;
+        // pulleys
+        S.circle(cx1, cy, R1, {fill:'rgba(79,209,197,.05)', stroke:'rgba(79,209,197,.35)', w:2});
+        S.circle(cx2, cy, R2, {fill:'rgba(79,209,197,.05)', stroke:'rgba(79,209,197,.35)', w:2});
+        // belt (top/bottom)
+        S.line(cx1, cy-R1, cx2, cy-R2, {stroke:'rgba(255,255,255,.25)', w:3});
+        S.line(cx1, cy+R1, cx2, cy+R2, {stroke:'rgba(255,255,255,.25)', w:3});
+        // tensions
+        S.text('T1 (紧边)', (cx1+cx2)/2-40, cy-R2-18, 0.85);
+        S.text('T2 (松边)', (cx1+cx2)/2-40, cy+R2+28, 0.85);
+        S.text(`μ=${fmt(s.mu,2)}, θ=${fmt(s.theta,0)}°, v=${fmt(s.v,2)} m/s`, 14, 22, 0.9);
+      },
+      drawChart(C, computed){
+        C.clear();
+        const pts = computed.chart.pts;
+        let ymax=0;
+        for(const p of pts){ ymax=Math.max(ymax,p.y); }
+        const pad=46;
+        const view = {xmin:0, xmax:computed.extra.vmax, ymin:0, ymax:ymax*1.15 || 1, pad};
+        const {toS} = C.plotAxes(view);
+        C.plotLine(pts, toS, {stroke:'rgba(255,204,102,.95)', w:2.6});
+        C.plotLegend([{text:'Pcap(v)', color:'rgba(255,204,102,.95)'}]);
+      }
+    },
+
+    {
+      id: 'bolt_preload_torque',
+      name: '螺栓连接（扭矩-预紧力近似） Bolted Joint (Torque–Preload Approx.)',
+      desc: '输出：预紧力、拉应力（基于螺纹应力面积近似/表）。',
+      inputs: [
+        {key:'size', label:'螺纹规格', type:'select', default:'M10', options:[
+          {value:'M6', text:'M6 (粗牙)'},
+          {value:'M8', text:'M8 (粗牙)'},
+          {value:'M10', text:'M10 (粗牙)'},
+          {value:'M12', text:'M12 (粗牙)'},
+          {value:'M16', text:'M16 (粗牙)'},
+          {value:'M20', text:'M20 (粗牙)'},
+        ]},
+        {key:'K', label:'扭矩系数 K', type:'number', default:0.2, min:0.08, max:0.35, step:0.01, slider:true,
+          hint:'经验：润滑更小（~0.12~0.18），干摩擦更大（~0.2~0.3）。'},
+        {key:'Torque', label:'拧紧扭矩 T (N·m)', type:'number', default:45, min:0, max:600, step:1, slider:true},
+      ],
+      compute(s){
+        // coarse thread stress area table (approx) in mm^2
+        const AsTable = { M6:20.1, M8:36.6, M10:58.0, M12:84.3, M16:157, M20:245 };
+        const dTable  = { M6:6e-3, M8:8e-3, M10:10e-3, M12:12e-3, M16:16e-3, M20:20e-3 };
+        const As_mm2 = AsTable[s.size] ?? 58.0;
+        const d = dTable[s.size] ?? 10e-3;
+        const K = s.K;
+        const T = s.Torque;
+
+        // T = K F d  => F = T/(K d)
+        const F = (K>0 && d>0) ? T/(K*d) : NaN; // N
+        const As = As_mm2 * 1e-6; // m^2
+        const sigma = (As>0) ? F/As : NaN; // Pa
+
+        // chart: preload vs torque line
+        const pts=[];
+        const n=160;
+        const Tmax = Math.max(10, T*2);
+        for(let i=0;i<=n;i++){
+          const tt = Tmax*i/n;
+          const FF = (K>0 && d>0) ? tt/(K*d) : NaN;
+          pts.push({x:tt, y:FF});
+        }
+
+        return {
+          outputs: [
+            {label:'应力面积 As', value: fmt(As_mm2,1), unit:'mm²', note:'粗牙近似表值（教学/估算）'},
+            {label:'名义直径 d', value: fmt(d*1000,1), unit:'mm'},
+            {label:'预紧力 F', value: fmt(F,0), unit:'N', note:'\\(F=T/(Kd)\\)'},
+            {label:'拉应力 σ', value: fmt(MPa(sigma),2), unit:'MPa', note:'\\(\\sigma=F/A_s\\)（仅预紧拉应力）'},
+          ],
+          chart: { pts, xLabel:'T (N·m)', yLabel:'F (N)', title:'预紧力随扭矩变化' },
+          extra: {As_mm2, d, F, sigma, Tmax}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            T \\approx K F d \\Rightarrow F\\approx \\frac{T}{K d}
+          \\]
+          \\[
+            \\sigma \\approx \\frac{F}{A_s}
+          \\]
+        `,
+        vars: `
+          \\[
+            T: 拧紧扭矩,\\; K: 扭矩系数,\\; d: 螺纹名义直径,\\; F: 预紧力,\\; A_s: 螺纹应力面积
+          \\]
+        `
+      },
+      principle: `
+        螺栓连接的核心变量是<b>预紧力</b>。扭矩法简单但分散较大，因为 K 会受润滑、表面、工艺影响。<br>
+        - 你在设计里更关心：预紧力是否足够防松/防分离？是否导致螺栓超屈服？<br>
+        - 这里用 \\(T\\approx KFd\\) 做工程估算；更高精度可用角度法/拉伸计量法。
+      `,
+      derivation: `
+        扭矩分解为：克服螺纹摩擦 + 端面摩擦 + 产生轴向预紧。把复杂因素打包进 K，得到近似关系 \\(T\\approx KFd\\)。<br>
+        预紧拉应力用 \\(\\sigma=F/A_s\\) 估算（这里只考虑预紧引起的轴向拉应力）。
+      `,
+      drawSchematic(S, s){
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+
+        // bolt
+        S.rect(W/2-30, 90, 60, 190, {fill:'rgba(79,209,197,.06)', stroke:'rgba(79,209,197,.35)', w:2});
+        // head
+        S.rect(W/2-70, 70, 140, 30, {fill:'rgba(255,255,255,.06)', stroke:'rgba(255,255,255,.22)', w:2});
+        // nut
+        S.rect(W/2-70, 260, 140, 30, {fill:'rgba(255,255,255,.06)', stroke:'rgba(255,255,255,.22)', w:2});
+
+        // clamp plates
+        S.rect(140, 150, W-280, 40, {fill:'rgba(255,255,255,.03)', stroke:'rgba(255,255,255,.14)', w:2});
+        S.rect(140, 200, W-280, 40, {fill:'rgba(255,255,255,.03)', stroke:'rgba(255,255,255,.14)', w:2});
+
+        // preload arrows
+        S.arrow(W/2, 120, W/2, 150, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.arrow(W/2, 270, W/2, 240, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.text('F (预紧力)', W/2+20, 138, 0.9);
+        S.text(`规格=${s.size}, K=${fmt(s.K,2)}, T=${fmt(s.Torque,1)} N·m`, 14, 22, 0.9);
+      },
+      drawChart(C, computed){
+        C.clear();
+        const pts = computed.chart.pts;
+        let ymax=0;
+        for(const p of pts){ ymax=Math.max(ymax,p.y); }
+        const pad=46;
+        const view = {xmin:0, xmax:computed.extra.Tmax, ymin:0, ymax:ymax*1.15 || 1, pad};
+        const {toS} = C.plotAxes(view);
+        C.plotLine(pts, toS, {stroke:'rgba(79,209,197,.95)', w:2.6});
+        C.plotLegend([{text:'F(T)', color:'rgba(79,209,197,.95)'}]);
+      }
+    },
+
+    {
+      id: 'column_euler_buckling',
+      name: '欧拉压杆失稳 Euler Buckling (Column)',
+      desc: '输出：临界失稳载荷 Pcr。可选矩形/圆截面与端部系数 K。',
+      inputs: [
+        {key:'shape', label:'截面形状', type:'select', default:'rect', options:[
+          {value:'rect', text:'矩形截面 (b×h)'},
+          {value:'circ', text:'圆截面 (d)'},
+        ]},
+        {key:'b', label:'宽 b (m)', type:'number', default:0.03, min:0.002, max:0.3, step:0.001, slider:true},
+        {key:'h', label:'高 h (m)', type:'number', default:0.05, min:0.002, max:0.3, step:0.001, slider:true},
+        {key:'d', label:'直径 d (m)', type:'number', default:0.04, min:0.002, max:0.3, step:0.001, slider:true},
+        {key:'L', label:'杆长 L (m)', type:'number', default:1.5, min:0.1, max:10, step:0.01, slider:true},
+        {key:'K', label:'端部系数 K', type:'number', default:1.0, min:0.5, max:2.0, step:0.05, slider:true,
+          hint:'常见：固-固 K=0.5；铰-铰 K=1；固-铰 K≈0.7；固-自由 K=2'
+        },
+        {key:'E_GPa', label:'弹性模量 E (GPa)', type:'number', default:200, min:1, max:300, step:1, slider:true},
+      ],
+      compute(s){
+        const L=s.L, K=s.K, E=s.E_GPa*1e9;
+        let I;
+        if (s.shape==='rect'){
+          I = s.b*Math.pow(s.h,3)/12;
+        } else {
+          I = Math.PI*Math.pow(s.d,4)/64;
+        }
+        const Le = K*L;
+        const Pcr = (Math.PI*Math.PI*E*I)/(Le*Le);
+
+        // chart: Pcr vs L curve
+        const pts=[];
+        const n=160;
+        const Lmax = Math.max(0.5, L*2);
+        for(let i=0;i<=n;i++){
+          const LL = 0.1 + (Lmax-0.1)*i/n;
+          const Le2 = (K*LL)*(K*LL);
+          pts.push({x:LL, y:(Math.PI*Math.PI*E*I)/Le2});
+        }
+
+        return {
+          outputs: [
+            {label:'截面惯性矩 I', value: fmt(I,8), unit:'m⁴'},
+            {label:'等效长度 Le=K·L', value: fmt(Le,4), unit:'m'},
+            {label:'临界载荷 Pcr', value: fmt(Pcr,2), unit:'N', note:'\\(P_{cr}=\\pi^2EI/(KL)^2\\)'},
+            {label:'趋势', value: 'Pcr ∝ 1/L²', unit:'', note:'越细长越容易失稳'},
+          ],
+          chart: { pts, xLabel:'L (m)', yLabel:'Pcr (N)', title:'Pcr 随 L 变化' },
+          extra: {I, Le, Pcr, Lmax}
+        };
+      },
+      formulas: {
+        main: `
+          \\[
+            P_{cr}=\\frac{\\pi^2 E I}{(K L)^2}
+          \\]
+          \\[
+            I_{rect}=\\frac{b h^3}{12},\\quad I_{circ}=\\frac{\\pi d^4}{64}
+          \\]
+        `,
+        vars: `
+          \\[
+            E: 弹性模量,\\; I: 惯性矩,\\; L: 杆长,\\; K: 端部系数,\\; P_{cr}: 临界失稳载荷
+          \\]
+        `
+      },
+      principle: `
+        欧拉失稳适用于<b>细长压杆</b>（弹性失稳主导）。设计抓手：<br>
+        - 增大惯性矩 I（尤其增大“弱轴方向”的截面高度）。<br>
+        - 缩短有效长度（降低 K 或 L）。<br>
+        真实工程还要检查：初始弯曲、偏心、材料屈服、残余应力等（会使临界载荷更低）。
+      `,
+      derivation: `
+        从弯曲微分方程与轴向压力耦合：\\(EIy''+Py=0\\)。<br>
+        施加边界条件得到特征值：\\(P_{cr}=\\pi^2EI/L_e^2\\)，其中 \\(L_e=KL\\)。
+      `,
+      drawSchematic(S, s){
+        S.clear();
+        const W=S.ctx.canvas.width, H=S.ctx.canvas.height;
+        // column
+        S.rect(W/2-18, 80, 36, 220, {fill:'rgba(79,209,197,.06)', stroke:'rgba(79,209,197,.35)', w:2});
+        // load
+        S.arrow(W/2, 60, W/2, 80, {stroke:'rgba(255,204,102,.9)', w:3, head:12});
+        S.text('P', W/2+10, 66, 0.9);
+        // supports hints
+        S.line(W/2-50, 305, W/2+50, 305, {stroke:'rgba(255,255,255,.25)', w:2});
+        S.text(`L=${fmt(s.L,3)} m, K=${fmt(s.K,2)}, E=${fmt(s.E_GPa,0)} GPa`, 14, 22, 0.9);
+        S.text('欧拉失稳：细长杆在压缩下可能侧向屈曲', 14, 40, 0.85);
+      },
+      drawChart(C, computed){
+        C.clear();
+        const pts = computed.chart.pts;
+        let ymax=0;
+        for(const p of pts){ ymax=Math.max(ymax,p.y); }
+        const pad=46;
+        const view = {xmin:0.1, xmax:computed.extra.Lmax, ymin:0, ymax:ymax*1.15 || 1, pad};
+        const {toS} = C.plotAxes(view);
+        C.plotLine(pts, toS, {stroke:'rgba(255,204,102,.95)', w:2.6});
+        C.plotLegend([{text:'Pcr(L)', color:'rgba(255,204,102,.95)'}]);
+      }
+    },
+  ];
+
+  // ---------- App state ----------
+  const state = {}; // module-specific inputs stored here
+  let current = modules[0];
+
+  function defaultStateForModule(mod){
+    const st = {};
+    mod.inputs.forEach(i => st[i.key] = (i.default ?? 0));
+    return st;
+  }
+
+  // ---------- Rendering ----------
+  function renderModuleList(){
+    const sel = $('moduleSelect');
+    sel.innerHTML = '';
+    modules.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.id;
+      opt.textContent = m.name;
+      sel.appendChild(opt);
+    });
+  }
+
+  function getCurrentState(mod){
+    // ensure keys exist
+    mod.inputs.forEach(i => {
+      if (state[i.key] === undefined) state[i.key] = i.default ?? 0;
+    });
+    return state;
+  }
+
+  function validateAndCompute(mod, st){
+    // simple sanity checks
+    if (mod.id.includes('beam')){
+      if (st.L <= 0) return {error:'L 必须 > 0'};
+      if (st.b <= 0 || st.h <= 0) return {error:'b/h 必须 > 0'};
+      if (st.E_GPa <= 0) return {error:'E 必须 > 0'};
+    }
+    if (mod.id === 'shaft_torsion_solid'){
+      if (st.d <= 0 || st.L <= 0) return {error:'d/L 必须 > 0'};
+      if (st.G_GPa <= 0) return {error:'G 必须 > 0'};
+    }
+    // compute
+    try{
+      const res = mod.compute(st);
+      return {res};
+    }catch(e){
+      return {error: '计算失败：' + (e.message || String(e))};
+    }
+  }
+
+  async function update(){
+    showStatus('');
+    setBadge(true, 'READY');
+
+    const mod = current;
+    const st = getCurrentState(mod);
+
+    $('moduleDesc').textContent = mod.desc;
+
+    // compute
+    const {res, error} = validateAndCompute(mod, st);
+    if (error){
+      showStatus(error);
+      setBadge(false, 'CHECK');
+      // still try to draw something minimal
+      S.clear(); C.clear();
+      $('mathMain').innerHTML = '';
+      $('mathVars').innerHTML = '';
+      $('principleArea').innerHTML = '';
+      $('derivationArea').innerHTML = '';
+      $('outputsArea').innerHTML = '';
+      $('liveText').textContent = '—';
+      await typeset();
+      return;
+    }
+
+    // render outputs
+    renderOutputs(res.outputs);
+
+    // formulas / text
+    $('mathMain').innerHTML = `<b>核心公式（Core formulas）</b><br/>${mod.formulas.main}`;
+    $('mathVars').innerHTML = `<b>变量说明（Variables）</b><br/>${mod.formulas.vars}`;
+    $('principleArea').innerHTML = mod.principle;
+    $('derivationArea').innerHTML = mod.derivation;
+
+    // live text
+    $('liveText').textContent = '已更新：变量联动 & 图表刷新';
+
+    // draw
+    try{
+      mod.drawSchematic(S, st);
+      mod.drawChart(C, res);
+    }catch(e){
+      showStatus('绘图失败：'+(e.message||String(e)));
+      setBadge(false, 'CHECK');
+    }
+
+    await typeset();
+  }
+
+  function mountModule(mod){
+    current = mod;
+
+    // reset state for safety (preserve if keys overlap)
+    const defaults = defaultStateForModule(mod);
+    // merge defaults only for missing keys
+    Object.keys(defaults).forEach(k => {
+      if (state[k] === undefined) state[k] = defaults[k];
+    });
+
+    renderInputs(mod.inputs, state, update);
+    $('moduleDesc').textContent = mod.desc;
+    update();
+  }
+
+  // ---------- Init ----------
+  renderModuleList();
+
+  // initial state
+  Object.assign(state, defaultStateForModule(modules[0]));
+  mountModule(modules[0]);
+
+  $('moduleSelect').addEventListener('change', (e)=>{
+    const id = e.target.value;
+    const mod = modules.find(m=>m.id===id) || modules[0];
+    // reset state for new module keys (keep old for shared keys)
+    mod.inputs.forEach(i=>{
+      if (state[i.key] === undefined) state[i.key] = i.default ?? 0;
+    });
+    mountModule(mod);
+  });
+
+})();
+</script>
+</body>
+</html>
