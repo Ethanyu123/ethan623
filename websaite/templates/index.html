@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+ <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <!-- 顶部导航 -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="logo"></div>
+        <span>紫老板 · 资源库</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#products">产品</a>
+        <a href="#cases">案例</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-ghost" href="#contact">联系</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <section class="hero hero-slider" id="top">
+  <div class="slider slider-hero" id="slider">
+    <div class="slides">
+      <div class="slide active">
+        <img src="/static/img/banner1.png" alt="banner 1">
+      </div>
+      <div class="slide">
+        <img src="/static/img/banner2.png" alt="banner 2">
+      </div>
+      <div class="slide">
+        <img src="/static/img/banner3.png" alt="banner 3">
+      </div>
+    </div>
+
+    <!-- 叠层内容：固定不动（关键） -->
+    <div class="hero-overlay">
+      <div class="container hero-overlay-inner">
+        <div class="hero-copy">
+          <div class="pill">温暖治愈 · 即买即用</div>
+          <h1 class="hero-title">{{ title }}</h1>
+          <p class="hero-subtitle">{{ subtitle }}</p>
+
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#products">立即查看产品</a>
+            <a class="btn btn-ghost" href="#cases">看案例</a>
+          </div>
+
+          <div class="trust">
+            <div class="trust-item">
+              <div class="trust-num">2,500+</div>
+              <div class="trust-txt">PPT 模板</div>
+            </div>
+            <div class="trust-item">
+              <div class="trust-num">1,000+</div>
+              <div class="trust-txt">简历模板</div>
+            </div>
+            <div class="trust-item">
+              <div class="trust-num">即买即用</div>
+              <div class="trust-txt">可编辑、可复用</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="slider-btn prev" aria-label="Previous">‹</button>
+    <button class="slider-btn next" aria-label="Next">›</button>
+    <div class="dots" aria-label="Slider dots"></div>
+  </div>
+</section>
+
+<script src="/static/slider.js"></script>
+
+
+  <!-- 产品区 -->
+ <section class="section" id="products">
+  <div class="container-wide">
+    <h2>热门产品</h2>
+    <p>为 25–35 岁职场人设计：省时间、可复用、能直接交付。</p>
+
+    <div class="product-grid">
+      {% for p in products %}
+      <article class="product-card">
+        <div class="product-top">
+          <span class="chip">{{ p.tag }}</span>
+          <span class="chip chip-ghost">{{ p.badge }}</span>
+        </div>
+
+        <h3 class="product-title">{{ p.title }}</h3>
+        <p class="product-desc">{{ p.desc }}</p>
+
+        <div class="product-bottom">
+          <div class="product-price">¥{{ p.price }}</div>
+          <a class="btn btn-primary btn-sm" href="{{ p.link }}">获取</a>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+  <!-- 案例/亮点 -->
+ <section class="section" id="cases">
+  <div class="container-wide">
+    <h2 class="section-title">使用场景</h2>
+    <p class="section-subtitle">把模板当成“交付结构”，你就能更快拿结果。</p>
+
+    <div class="twocol-list">
+      {% for s in sections %}
+      <div class="twocol {{ 'reverse' if s.reverse else '' }}">
+        <div class="twocol-media">
+          <img src="{{ s.image }}" alt="{{ s.title }}">
+        </div>
+
+        <div class="twocol-text">
+          <h3>{{ s.title }}</h3>
+          <p>{{ s.desc }}</p>
+
+          <ul>
+            {% for b in s.bullets %}
+            <li>{{ b }}</li>
+            {% endfor %}
+          </ul>
+
+          <div class="twocol-actions">
+            <a class="btn btn-primary" href="#products">去看产品</a>
+            <a class="btn" href="#contact">联系获取</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-head">
+        <h2>FAQ</h2>
+        <p>你可能会关心的 3 个问题。</p>
+      </div>
+
+      <div class="faq">
+        <details class="faq-item" open>
+          <summary>模板是图片吗？可以编辑吗？</summary>
+          <p>不是图片。文字、形状、图表都可编辑，适配 WPS/Office（具体看产品说明）。</p>
+        </details>
+        <details class="faq-item">
+          <summary>适合什么人？</summary>
+          <p>更适合 25–35 岁职场人：需要快速交付、减少熬夜改稿、提升表达清晰度。</p>
+        </details>
+        <details class="faq-item">
+          <summary>怎么获取？</summary>
+          <p>下方留联系方式或加你的私域入口（微信/邮箱/表单），你后面也可以接支付。</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系 -->
+  <section class="section section-soft" id="contact">
+    <div class="container">
+      <div class="contact">
+        <div>
+          <h2>联系我获取资源</h2>
+          <p>先把入口放这里。下一步我们可以做“表单提交 → 保存到本地/数据库”。</p>
+        </div>
+        <a class="btn btn-primary" href="mailto:hello@example.com">发邮件咨询</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <span>© {{ title }} · Powered by FastAPI</span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,23 @@
+[
+  {
+    "title": "结构化交付：让年终总结更容易被认可",
+    "desc": "把结果讲清楚，把过程讲得有逻辑，把下一步落到动作。",
+    "bullets": ["20+ 页面结构", "图表/目录/复盘全覆盖", "可编辑可复用"],
+    "image": "/static/img/illus1.png",
+    "reverse": false
+  },
+  {
+    "title": "求职场景：关键词密度 + STAR 叙事",
+    "desc": "让 HR 更快看到你和岗位的匹配证据链。",
+    "bullets": ["岗位关键词位", "STAR 表达模板", "一键替换内容"],
+    "image": "/static/img/illus2.png",
+    "reverse": true
+  },
+  {
+    "title": "办公效率：会议纪要/复盘/周报一套打穿",
+    "desc": "开会不再散，纪要不再乱，复盘能落地。",
+    "bullets": ["结论/行动项清晰", "可复用的模板结构", "支持团队协作"],
+    "image": "/static/img/illus3.png",
+    "reverse": false
+  }
+]
