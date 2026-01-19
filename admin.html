@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>产品后台</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container-wide" style="padding:28px 24px;">
+    <h2 style="margin:0 0 14px;">产品后台</h2>
+
+    <form action="/admin/add" method="post" style="display:grid; gap:10px; max-width:720px; padding:16px; border:1px solid rgba(0,0,0,.08); border-radius:16px; background:#fff;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <input name="title" placeholder="标题" required>
+        <input name="price" placeholder="价格（数字）" type="number" required>
+      </div>
+      <input name="desc" placeholder="描述" required>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+        <input name="tag" placeholder="标签（最热/高频）">
+        <input name="badge" placeholder="徽章（效率/求职）">
+        <input name="link" placeholder="链接（可留#）">
+      </div>
+      <button class="btn btn-primary" type="submit">新增产品</button>
+    </form>
+
+    <div style="height:18px;"></div>
+
+    <div style="display:grid; gap:10px;">
+      {% for p in products %}
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border:1px solid rgba(0,0,0,.08); border-radius:14px; background:#fff;">
+        <div>
+          <div style="font-weight:700;">{{ p.title }} <span style="opacity:.6;">¥{{ p.price }}</span></div>
+          <div style="opacity:.7; font-size:13px;">{{ p.desc }}</div>
+          <div style="opacity:.6; font-size:12px;">id: {{ p.id }} | {{ p.tag }} | {{ p.badge }}</div>
+        </div>
+       <div style="display:flex; gap:8px; align-items:center;">
+  <a class="btn" href="/admin/edit/{{ p.id }}">编辑</a>
+
+  <form action="/admin/delete" method="post" style="margin:0;">
+    <input type="hidden" name="pid" value="{{ p.id }}">
+    <button class="btn" type="submit">删除</button>
+  </form>
+</div>
+
+
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top:16px; opacity:.7;">
+      前台：<a href="/">返回首页</a>
+    </div>
+  </div>
+</body>
+</html>

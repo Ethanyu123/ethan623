@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>编辑产品</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container-wide" style="padding:28px 24px;">
+    <h2>编辑产品</h2>
+
+    <form action="/admin/edit" method="post"
+          style="display:grid; gap:10px; max-width:720px; padding:16px;
+                 border:1px solid rgba(0,0,0,.08); border-radius:16px; background:#fff;">
+
+      <input type="hidden" name="pid" value="{{ product.id }}">
+
+      <input name="title" value="{{ product.title }}" required>
+      <input name="price" type="number" value="{{ product.price }}" required>
+      <input name="desc" value="{{ product.desc }}" required>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+        <input name="tag" value="{{ product.tag }}">
+        <input name="badge" value="{{ product.badge }}">
+        <input name="link" value="{{ product.link }}">
+      </div>
+
+      <button class="btn btn-primary" type="submit">保存修改</button>
+    </form>
+
+    <div style="margin-top:16px;">
+      <a href="/admin">← 返回后台</a>
+    </div>
+  </div>
+</body>
+</html>
